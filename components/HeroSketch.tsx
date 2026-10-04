@@ -297,7 +297,7 @@ export default function HeroSketch() {
           className="draw"
           style={d(5.8, 0.8)}
           pathLength={1}
-          d="M196 60 C 176 70, 158 80, 146 88"
+          d="M160 66 C 152 72, 144 79, 138 86"
           stroke={sepia}
           strokeWidth="1.4"
         />
@@ -305,7 +305,7 @@ export default function HeroSketch() {
           className="scribble"
           style={d(6.4)}
           pathLength={1}
-          d="M152 80 C 149 83, 147 86, 146 88 C 149 88, 153 88, 156 89"
+          d="M142 78 C 141 81, 139 84, 138 86 C 141 86, 145 86, 148 87"
           stroke={sepia}
           strokeWidth="1.4"
           strokeLinecap="round"
@@ -313,12 +313,22 @@ export default function HeroSketch() {
         <text
           className="appear"
           style={{ ...d(6.0), fontFamily: "var(--font-hand)" }}
-          x="202"
-          y="58"
+          x="30"
+          y="64"
           fontSize="16"
           fill={sepia}
         >
-          rebuild this first — biggest gain
+          rebuild this first
+        </text>
+        <text
+          className="appear"
+          style={{ ...d(6.0), fontFamily: "var(--font-hand)" }}
+          x="30"
+          y="82"
+          fontSize="16"
+          fill={sepia}
+        >
+          — biggest gain
         </text>
 
         {/* ---- overall score seal ---- */}
