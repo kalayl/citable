@@ -16,6 +16,9 @@ import { fixSitemap } from "@/lib/fixes/sitemap";
 import { fixCanonical } from "@/lib/fixes/canonical";
 import { fixOgCards } from "@/lib/fixes/og-cards";
 import type { AuditResult } from "@/lib/types";
+import { requireAuth, getOrCreateSessionId } from "@/lib/session";
+import { getRecord } from "@/lib/credits";
+import { isStripeConfigured } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -84,6 +87,21 @@ async function fetchSitemapUrls(baseUrl: string): Promise<string[]> {
 }
 
 export async function POST(req: NextRequest) {
+  // Fixes require a signed-in user with an active subscription
+  // (subscription check waived during early access while payments are off).
+  const auth = await requireAuth(req);
+  if (auth.error) return auth.error;
+  if (isStripeConfigured()) {
+    const { sessionId } = getOrCreateSessionId(req);
+    const record = await getRecord(sessionId);
+    if (record.subscription?.status !== "active") {
+      return NextResponse.json(
+        { error: "An active subscription is required for one-click fixes." },
+        { status: 403 },
+      );
+    }
+  }
+
   const token = req.cookies.get(GITHUB_TOKEN_COOKIE)?.value;
   if (!token) {
     return NextResponse.json(

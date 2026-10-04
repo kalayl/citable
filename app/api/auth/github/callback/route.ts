@@ -1,7 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GITHUB_TOKEN_COOKIE } from "@/lib/github";
+import {
+  createSession,
+  getOrCreateSessionId,
+  attachSessionCookie,
+} from "@/lib/session";
 
 export const runtime = "nodejs";
+
+async function fetchGitHubEmail(token: string): Promise<string | null> {
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/vnd.github+json",
+    "User-Agent": "llmscore",
+  };
+  try {
+    const emailsRes = await fetch("https://api.github.com/user/emails", { headers });
+    if (emailsRes.ok) {
+      const emails = (await emailsRes.json()) as Array<{
+        email: string;
+        primary: boolean;
+        verified: boolean;
+      }>;
+      const primary = emails.find((e) => e.primary && e.verified) || emails.find((e) => e.verified);
+      if (primary) return primary.email;
+    }
+    const userRes = await fetch("https://api.github.com/user", { headers });
+    if (userRes.ok) {
+      const user = (await userRes.json()) as { email?: string | null };
+      if (user.email) return user.email;
+    }
+  } catch {
+    // fall through
+  }
+  return null;
+}
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
@@ -42,6 +75,15 @@ export async function GET(req: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
     res.cookies.delete("gh_oauth_state");
+
+    // Also sign the user in to the app itself.
+    const email = await fetchGitHubEmail(data.access_token);
+    if (email) {
+      const { sessionId } = getOrCreateSessionId(req);
+      const boundId = await createSession(email, { sessionId, provider: "github" });
+      attachSessionCookie(res, boundId);
+    }
+
     return res;
   } catch {
     return NextResponse.redirect(`${origin}/?github=error`);

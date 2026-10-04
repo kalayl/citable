@@ -6,7 +6,7 @@ import {
   getPackById,
   type CheckoutProduct,
 } from "@/lib/stripe";
-import { getOrCreateSessionId, attachSessionCookie } from "@/lib/session";
+import { getOrCreateSessionId, attachSessionCookie, requireAuth } from "@/lib/session";
 
 export const runtime = "nodejs";
 
@@ -18,6 +18,9 @@ const VALID_PRODUCTS: CheckoutProduct[] = [
 ];
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req);
+  if (auth.error) return auth.error;
+
   if (!isStripeConfigured()) {
     return NextResponse.json(
       {

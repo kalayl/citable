@@ -1,4 +1,5 @@
 import AuditWidget from "@/components/AuditWidget";
+import AccountMenu from "@/components/AccountMenu";
 import HeroSketch from "@/components/HeroSketch";
 import { LogoMark } from "@/components/Logo";
 
@@ -45,6 +46,17 @@ export default function Home() {
         id="top"
         className="relative flex min-h-[92vh] flex-col justify-center border-b border-gray-200"
       >
+        <div className="absolute left-0 right-0 top-0 z-10">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+            <div className="flex items-center gap-2.5">
+              <LogoMark size={20} />
+              <span className="font-serif text-base font-semibold text-gray-900">
+                LLMScore
+              </span>
+            </div>
+            <AccountMenu />
+          </div>
+        </div>
         <div className="mx-auto w-full max-w-6xl px-6 py-16">
           <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
