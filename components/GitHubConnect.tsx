@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { signIn, useSession } from "next-auth/react";
 
 type Repo = { fullName: string; url: string };
 
@@ -28,6 +29,8 @@ export default function GitHubConnect({
   const [fixing, setFixing] = useState<string | null>(null);
   const [prs, setPrs] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
+  const { data: session } = useSession();
+  const ghToken = (session as unknown as Record<string, unknown> | null)?.githubAccessToken;
 
   useEffect(() => {
     fetch("/api/github/repos")
@@ -77,12 +80,13 @@ export default function GitHubConnect({
             Want LLMScore to fix these issues? Connect GitHub and we open PRs
             with the fixes. You review and merge.
           </p>
-          <a
-            href="/api/auth/github"
+          <button
+            type="button"
+            onClick={() => signIn("github", { callbackUrl: window.location.href })}
             className="mt-3 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700"
           >
             Connect GitHub →
-          </a>
+          </button>
           <p className="mt-2 text-xs text-gray-400">
             Free audit. $29/mo for automatic PR fixes. Early access: free
             everything.

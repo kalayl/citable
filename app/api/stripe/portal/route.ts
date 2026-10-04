@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
-import { getOrCreateSessionId } from "@/lib/session";
+import { getOrCreateSessionId } from "@/lib/session-anon";
 import { getRecord } from "@/lib/credits";
 
 export const runtime = "nodejs";

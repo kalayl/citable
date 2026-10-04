@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { runAudit, getCachedAudit } from "@/lib/audit";
 import { fetchText, matchAll } from "@/lib/http";
 import {
-  GITHUB_TOKEN_COOKIE,
   getFile,
   putFile,
   getDefaultBranch,
@@ -16,7 +15,8 @@ import { fixSitemap } from "@/lib/fixes/sitemap";
 import { fixCanonical } from "@/lib/fixes/canonical";
 import { fixOgCards } from "@/lib/fixes/og-cards";
 import type { AuditResult } from "@/lib/types";
-import { requireAuth, getOrCreateSessionId } from "@/lib/session";
+import { auth } from "@/auth";
+import { getOrCreateSessionId } from "@/lib/session-anon";
 import { getRecord } from "@/lib/credits";
 import { isStripeConfigured } from "@/lib/stripe";
 
@@ -87,10 +87,15 @@ async function fetchSitemapUrls(baseUrl: string): Promise<string[]> {
 }
 
 export async function POST(req: NextRequest) {
-  // Fixes require a signed-in user with an active subscription
-  // (subscription check waived during early access while payments are off).
-  const auth = await requireAuth(req);
-  if (auth.error) return auth.error;
+  // Auth.js session check
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json(
+      { error: "Sign in required", signinUrl: "/signin" },
+      { status: 401 },
+    );
+  }
+
   if (isStripeConfigured()) {
     const { sessionId } = getOrCreateSessionId(req);
     const record = await getRecord(sessionId);
@@ -102,10 +107,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const token = req.cookies.get(GITHUB_TOKEN_COOKIE)?.value;
+  // Get the GitHub access token from the Auth.js JWT (stored in the session)
+  const token = (session as unknown as Record<string, unknown>).githubAccessToken as string | undefined;
   if (!token) {
     return NextResponse.json(
-      { error: "Not connected to GitHub. Connect your account first." },
+      { error: "Not connected to GitHub. Sign in with GitHub first." },
       { status: 401 }
     );
   }
@@ -120,7 +126,7 @@ export async function POST(req: NextRequest) {
   if (!domain || !category || !repo || !repo.includes("/")) {
     return NextResponse.json(
       { error: "Missing required fields: domain, category, repo (owner/repo)" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -128,7 +134,7 @@ export async function POST(req: NextRequest) {
   if (!plan) {
     return NextResponse.json(
       { error: `No automated fix available for category '${category}'` },
-      { status: 400 }
+      { status: 400 },
     );
   }
 

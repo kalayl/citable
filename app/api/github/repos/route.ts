@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GITHUB_TOKEN_COOKIE, listPublicRepos } from "@/lib/github";
+import { listPublicRepos } from "@/lib/github";
+import { auth } from "@/auth";
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get(GITHUB_TOKEN_COOKIE)?.value;
+  const session = await auth();
+  const token = (session as unknown as Record<string, unknown> | null)?.githubAccessToken as
+    | string
+    | undefined;
   if (!token) {
     return NextResponse.json({ connected: false, repos: [] });
   }
@@ -16,8 +20,6 @@ export async function GET(req: NextRequest) {
     });
   } catch {
     // Token likely expired/revoked
-    const res = NextResponse.json({ connected: false, repos: [] });
-    res.cookies.delete(GITHUB_TOKEN_COOKIE);
-    return res;
+    return NextResponse.json({ connected: false, repos: [] });
   }
 }

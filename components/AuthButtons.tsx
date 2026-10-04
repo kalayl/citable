@@ -1,5 +1,7 @@
 "use client";
 
+import { signIn } from "next-auth/react";
+
 function GitHubIcon() {
   return (
     <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden>
@@ -37,14 +39,22 @@ const buttonClass =
 export default function AuthButtons() {
   return (
     <div className="space-y-3">
-      <a href="/api/auth/github" className={buttonClass}>
+      <button
+        type="button"
+        onClick={() => signIn("github", { callbackUrl: "/" })}
+        className={buttonClass}
+      >
         <GitHubIcon />
         Continue with GitHub
-      </a>
-      <a href="/api/auth/google" className={buttonClass}>
+      </button>
+      <button
+        type="button"
+        onClick={() => signIn("google", { callbackUrl: "/" })}
+        className={buttonClass}
+      >
         <GoogleIcon />
         Continue with Google
-      </a>
+      </button>
     </div>
   );
 }

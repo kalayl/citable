@@ -7,7 +7,7 @@ import {
   markFreeAudit,
   deductCredit,
 } from "@/lib/credits";
-import { getOrCreateSessionId, attachSessionCookie } from "@/lib/session";
+import { getOrCreateSessionId, attachSessionCookie } from "@/lib/session-anon";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;

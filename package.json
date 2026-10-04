@@ -11,8 +11,10 @@
     "mcp:test": "tsx mcp-server/test.ts"
   },
   "dependencies": {
+    "@auth/core": "^0.41.3",
     "@modelcontextprotocol/sdk": "^1.31.0",
     "next": "^16.3.8",
+    "next-auth": "^5.0.0-beta.32",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "resend": "^6.30.0",

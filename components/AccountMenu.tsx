@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-interface SessionInfo {
-  signedIn: boolean;
-  email?: string;
-}
+import { useSession, signOut } from "next-auth/react";
 
 interface Balance {
   credits: number;
@@ -14,25 +10,21 @@ interface Balance {
 }
 
 export default function AccountMenu() {
-  const [session, setSession] = useState<SessionInfo | null>(null);
+  const { data: session, status } = useSession();
   const [balance, setBalance] = useState<Balance | null>(null);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const email = session?.user?.email;
+  const signedIn = status === "authenticated" && !!email;
+
   useEffect(() => {
-    fetch("/api/auth/session")
-      .then((r) => r.json())
-      .then((data: SessionInfo) => {
-        setSession(data);
-        if (data.signedIn) {
-          fetch("/api/credits")
-            .then((r) => (r.ok ? r.json() : null))
-            .then((b) => b && setBalance(b))
-            .catch(() => {});
-        }
-      })
-      .catch(() => setSession({ signedIn: false }));
-  }, []);
+    if (!signedIn) return;
+    fetch("/api/credits")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((b) => b && setBalance(b))
+      .catch(() => {});
+  }, [signedIn]);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -44,14 +36,9 @@ export default function AccountMenu() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  async function signOut() {
-    await fetch("/api/auth/signout", { method: "POST" }).catch(() => {});
-    window.location.href = "/";
-  }
+  if (status === "loading") return null;
 
-  if (!session) return null;
-
-  if (!session.signedIn) {
+  if (!signedIn) {
     return (
       <a
         href="/signin"
@@ -70,7 +57,7 @@ export default function AccountMenu() {
         className="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-1.5 text-sm text-gray-700 shadow-sm transition hover:border-gray-400"
       >
         <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
-        <span className="max-w-[180px] truncate">{session.email}</span>
+        <span className="max-w-[180px] truncate">{email}</span>
         <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden>
           <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
@@ -79,7 +66,7 @@ export default function AccountMenu() {
       {open && (
         <div className="sketch-card absolute right-0 top-full z-50 mt-2 w-60 bg-white p-2 text-sm shadow-lg">
           <div className="border-b border-gray-100 px-3 py-2">
-            <p className="truncate font-medium text-gray-900">{session.email}</p>
+            <p className="truncate font-medium text-gray-900">{email}</p>
             {balance && (
               <p className="mt-1 text-xs text-gray-500">
                 {balance.earlyAccess
@@ -106,7 +93,7 @@ export default function AccountMenu() {
           </a>
           <button
             type="button"
-            onClick={signOut}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="block w-full rounded px-3 py-2 text-left text-gray-700 hover:bg-gray-50"
           >
             Sign out
