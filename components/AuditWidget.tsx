@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import GitHubConnect from "./GitHubConnect";
 
 type Issue = {
   severity: "critical" | "warning" | "pass";
@@ -10,6 +11,7 @@ type Issue = {
 
 type CategoryResult = {
   name: string;
+  key?: string;
   score: number;
   issues: Issue[];
   topFixes: Issue[];
@@ -182,6 +184,8 @@ export default function AuditWidget() {
               </ol>
             </div>
           )}
+
+          <GitHubConnect domain={result.domain} categories={result.categories} />
 
           <a
             href={`/report/${audited}`}

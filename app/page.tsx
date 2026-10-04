@@ -1,41 +1,42 @@
 import AuditWidget from "@/components/AuditWidget";
+import HeroSketch from "@/components/HeroSketch";
 import Logo, { LogoMark } from "@/components/Logo";
 
 /* ---------- small inline building blocks ---------- */
 
 function TerminalPanel() {
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-gray-900 font-mono text-[13px] leading-relaxed shadow-xl shadow-gray-200/60">
+    <div className="sketch-card overflow-hidden bg-gray-900 font-mono text-[13px] leading-relaxed">
       <div className="flex items-center gap-2 border-b border-gray-800 px-4 py-2.5">
         <span className="h-2.5 w-2.5 rounded-full bg-gray-700" />
         <span className="h-2.5 w-2.5 rounded-full bg-gray-700" />
         <span className="h-2.5 w-2.5 rounded-full bg-gray-700" />
-        <span className="ml-2 text-xs text-gray-500">llmscore audit — example-saas.com</span>
+        <span className="ml-2 text-xs text-gray-400">llmscore audit — example-saas.com</span>
       </div>
-      <div className="px-5 py-4 text-gray-300">
-        <p className="text-gray-500">$ llmscore audit example-saas.com</p>
+      <div className="px-5 py-4 text-gray-200">
+        <p className="text-gray-400">$ llmscore audit example-saas.com</p>
         <p className="mt-2">
-          <span className="text-gray-500">→</span> crawling 340 pages… <span className="text-gray-500">done in 41s</span>
+          <span className="text-gray-400">→</span> crawling 340 pages… <span className="text-gray-400">done in 41s</span>
         </p>
-        <p className="mt-3 text-gray-500">── AI SEARCH READINESS ──────────────</p>
+        <p className="mt-3 text-gray-400">── AI SEARCH READINESS ──────────────</p>
         <p className="mt-1 text-2xl font-semibold text-white">
-          64<span className="text-base font-normal text-gray-500">/100</span>
+          64<span className="text-base font-normal text-gray-400">/100</span>
           <span className="ml-3 rounded bg-gray-800 px-2 py-0.5 text-xs font-normal text-amber-300">needs work</span>
         </p>
-        <p className="mt-4 text-gray-500">top fixes by impact:</p>
+        <p className="mt-4 text-gray-400">top fixes by impact:</p>
         <p className="mt-1">
           <span className="text-red-400">✗ CRIT</span>{"  "}llms-full.txt missing
-          <span className="text-gray-500"> — 212/340 pages invisible to AI crawlers</span>
+          <span className="text-gray-400"> — 212/340 pages invisible to AI crawlers</span>
         </p>
         <p>
           <span className="text-red-400">✗ CRIT</span>{"  "}llms.txt stale
-          <span className="text-gray-500"> — 14 URLs return 404, 9 duplicates</span>
+          <span className="text-gray-400"> — 14 URLs return 404, 9 duplicates</span>
         </p>
         <p>
-          <span className="text-amber-400">! WARN</span>{"  "}PerplexityBot blocked in robots.txt
-          <span className="text-gray-500"> — intentional?</span>
+          <span className="text-amber-300">! WARN</span>{"  "}PerplexityBot blocked in robots.txt
+          <span className="text-gray-400"> — intentional?</span>
         </p>
-        <p className="mt-3 text-gray-600">full report: llmscore.io/report/a8f2…</p>
+        <p className="mt-3 text-gray-500">full report: llmscore.io/report/a8f2…</p>
       </div>
     </div>
   );
@@ -51,7 +52,7 @@ function CodeBlock({
   children: React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <div className="sketch-card overflow-hidden">
       <div
         className={`flex items-center gap-2 border-b px-4 py-2 text-xs font-medium ${
           tone === "bad"
@@ -75,7 +76,7 @@ export default function Home() {
   return (
     <main>
       {/* Nav */}
-      <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-gray-200 bg-paper/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a href="#" aria-label="LLMScore home">
             <Logo />
@@ -92,7 +93,7 @@ export default function Home() {
             </a>
             <a
               href="#top"
-              className="rounded-lg bg-accent-500 px-3.5 py-1.5 font-medium text-white transition hover:bg-accent-600"
+              className="sketch-btn bg-accent-600 px-3.5 py-1.5 font-medium text-white"
             >
               Get your score
             </a>
@@ -101,19 +102,19 @@ export default function Home() {
       </header>
 
       {/* Hero — asymmetric */}
-      <section id="top" className="border-b border-gray-100">
+      <section id="top" className="border-b border-gray-200">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:py-28">
           <div>
-            <span className="mb-6 inline-block rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600">
+            <span className="sketch-pill mb-6 inline-block bg-gray-50 px-3.5 py-1 font-hand text-sm text-gray-600">
               Early access — AI search readiness audits
             </span>
-            <h1 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]">
+            <h1 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl lg:text-[3.6rem] lg:leading-[1.08]">
               What&apos;s your{" "}
-              <span className="text-accent-500">LLM score</span>?
+              <span className="sketch-underline text-accent-600">LLM score</span>?
             </h1>
             <p className="mt-5 max-w-lg text-lg text-gray-500">
               ChatGPT, Perplexity and Google AI Overviews are answering your
-              customers&apos; questions. LLMScore audits whether your site is
+              customers&apos; questions. LLMScore surveys whether your site is
               structured to be the cited source — and tells you exactly what to
               fix.
             </p>
@@ -121,27 +122,25 @@ export default function Home() {
               <AuditWidget />
             </div>
           </div>
-          <div className="hidden lg:block">
-            <TerminalPanel />
+          <div>
+            <HeroSketch />
           </div>
-        </div>
-        {/* terminal shown below on small screens */}
-        <div className="mx-auto max-w-6xl px-6 pb-16 lg:hidden">
-          <TerminalPanel />
         </div>
       </section>
 
       {/* Why it matters — editorial */}
-      <section className="border-b border-gray-100 bg-gray-50/60">
+      <section className="border-b border-gray-200 bg-paper-deep/60">
         <div className="mx-auto max-w-6xl px-6 py-24">
-          <p className="text-xs font-medium uppercase tracking-wider text-accent-600">
+          <p className="font-hand text-lg text-accent-600">
             The shift is already here
           </p>
-          <blockquote className="mt-6 max-w-4xl text-3xl font-semibold leading-snug tracking-tight text-gray-900 sm:text-4xl">
+          <blockquote className="mt-6 max-w-4xl font-serif text-3xl font-semibold leading-snug tracking-tight text-gray-900 sm:text-4xl">
             AI Overviews now appear on roughly half of informational Google
             queries. When the AI answers, it cites{" "}
-            <span className="text-accent-500">three to five sources</span> — not
-            ten blue links.
+            <span className="sketch-underline text-accent-600">
+              three to five sources
+            </span>{" "}
+            — not ten blue links.
           </blockquote>
           <p className="mt-6 max-w-2xl text-gray-500">
             Traditional SEO tools don&apos;t check whether your site is readable
@@ -152,16 +151,16 @@ export default function Home() {
 
           {/* before / after */}
           <div className="mt-14 grid gap-6 md:grid-cols-2">
-            <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+            <div className="sketch-card p-6">
+              <p className="font-hand text-base text-gray-400">
                 Then — ten blue links
               </p>
               <div className="mt-4 space-y-4">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i}>
-                    <div className="h-2.5 w-2/3 rounded bg-accent-100" />
-                    <div className="mt-1.5 h-2 w-full rounded bg-gray-100" />
-                    <div className="mt-1 h-2 w-5/6 rounded bg-gray-100" />
+                    <div className="ink-bar h-2.5 w-2/3 bg-accent-100" />
+                    <div className="ink-bar mt-1.5 h-2 w-full bg-gray-100" />
+                    <div className="ink-bar mt-1 h-2 w-5/6 bg-gray-100" />
                   </div>
                 ))}
               </div>
@@ -169,22 +168,22 @@ export default function Home() {
                 Rank in the top ten and you get seen. Everyone gets a slot.
               </p>
             </div>
-            <div className="rounded-xl border border-accent-100 bg-white p-6 ring-1 ring-accent-100">
-              <p className="text-xs font-medium uppercase tracking-wider text-accent-600">
+            <div className="sketch-card-accent p-6">
+              <p className="font-hand text-base text-accent-600">
                 Now — one AI answer
               </p>
-              <div className="mt-4 rounded-lg bg-gray-50 p-4">
-                <div className="h-2 w-full rounded bg-gray-200" />
-                <div className="mt-1.5 h-2 w-11/12 rounded bg-gray-200" />
-                <div className="mt-1.5 h-2 w-4/5 rounded bg-gray-200" />
+              <div className="sketch-border-soft mt-4 bg-gray-50 p-4">
+                <div className="ink-bar h-2 w-full bg-gray-200" />
+                <div className="ink-bar mt-1.5 h-2 w-11/12 bg-gray-200" />
+                <div className="ink-bar mt-1.5 h-2 w-4/5 bg-gray-200" />
                 <div className="mt-4 flex gap-2">
-                  <span className="rounded-full bg-accent-50 px-2.5 py-1 text-xs font-medium text-accent-600">
+                  <span className="sketch-pill bg-accent-50 px-2.5 py-1 text-xs font-medium text-accent-600">
                     source 1
                   </span>
-                  <span className="rounded-full bg-accent-50 px-2.5 py-1 text-xs font-medium text-accent-600">
+                  <span className="sketch-pill bg-accent-50 px-2.5 py-1 text-xs font-medium text-accent-600">
                     source 2
                   </span>
-                  <span className="rounded-full bg-accent-50 px-2.5 py-1 text-xs font-medium text-accent-600">
+                  <span className="sketch-pill bg-accent-50 px-2.5 py-1 text-xs font-medium text-accent-600">
                     source 3
                   </span>
                 </div>
@@ -199,7 +198,7 @@ export default function Home() {
       </section>
 
       {/* What it checks — grouped, not uniform */}
-      <section id="checks" className="border-b border-gray-100">
+      <section id="checks" className="border-b border-gray-200">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
             What does LLMScore check?
@@ -213,7 +212,7 @@ export default function Home() {
             {/* Check 1: llms.txt */}
             <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-start">
               <div>
-                <p className="font-mono text-xs text-accent-600">01</p>
+                <p className="font-hand text-xl text-accent-600">no. 1</p>
                 <h3 className="mt-1 text-xl font-semibold text-gray-900">
                   llms.txt &amp; llms-full.txt
                 </h3>
@@ -223,8 +222,8 @@ export default function Home() {
                   nothing is stale or duplicated.
                 </p>
               </div>
-              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-                <div className="border-b border-gray-100 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
+              <div className="sketch-card overflow-hidden">
+                <div className="border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
                   example-saas.com/llms.txt — 3 issues found
                 </div>
                 <pre className="overflow-x-auto p-4 font-mono text-[12.5px] leading-relaxed text-gray-700">
@@ -244,7 +243,7 @@ export default function Home() {
             {/* Check 2: JSON-LD */}
             <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-start">
               <div>
-                <p className="font-mono text-xs text-accent-600">02</p>
+                <p className="font-hand text-xl text-accent-600">no. 2</p>
                 <h3 className="mt-1 text-xl font-semibold text-gray-900">
                   JSON-LD for AI extraction
                 </h3>
@@ -255,8 +254,8 @@ export default function Home() {
                   actually on the page.
                 </p>
               </div>
-              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-                <div className="border-b border-gray-100 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
+              <div className="sketch-card overflow-hidden">
+                <div className="border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
                   /pricing — FAQPage schema, 2 issues
                 </div>
                 <pre className="overflow-x-auto p-4 font-mono text-[12.5px] leading-relaxed text-gray-700">
@@ -275,7 +274,7 @@ export default function Home() {
             {/* Check 3: extractability */}
             <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-start">
               <div>
-                <p className="font-mono text-xs text-accent-600">03</p>
+                <p className="font-hand text-xl text-accent-600">no. 3</p>
                 <h3 className="mt-1 text-xl font-semibold text-gray-900">
                   Content extractability
                 </h3>
@@ -285,8 +284,8 @@ export default function Home() {
                   have to guess?
                 </p>
               </div>
-              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-                <div className="border-b border-gray-100 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
+              <div className="sketch-card overflow-hidden">
+                <div className="border-b border-gray-200 bg-gray-50 px-4 py-2 font-mono text-xs text-gray-500">
                   /blog/workflow-automation — extractability 55/100
                 </div>
                 <div className="space-y-2 p-4 font-mono text-[12.5px] leading-relaxed">
@@ -307,7 +306,7 @@ export default function Home() {
           </div>
 
           {/* remaining checks — compact */}
-          <div className="mt-14 border-t border-gray-100 pt-8">
+          <div className="mt-14 border-t border-gray-200 pt-8">
             <p className="text-sm font-medium text-gray-900">
               Plus six more checks:
             </p>
@@ -360,7 +359,7 @@ export default function Home() {
       </section>
 
       {/* Robots example */}
-      <section className="border-b border-gray-100 bg-gray-50/60">
+      <section className="border-b border-gray-200 bg-paper-deep/60">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <h2 className="max-w-2xl text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
             Most sites block AI crawlers by accident.
@@ -396,7 +395,7 @@ Allow: /`}
       </section>
 
       {/* How it works — horizontal flow */}
-      <section id="how" className="border-b border-gray-100">
+      <section id="how" className="border-b border-gray-200">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
             How does LLMScore work?
@@ -404,19 +403,21 @@ Allow: /`}
           <div className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
             {/* connecting line */}
             <div
-              className="absolute left-0 right-0 top-5 hidden h-px bg-gray-200 md:block"
+              className="absolute left-0 right-0 top-5 hidden h-px bg-gray-300 md:block"
               aria-hidden="true"
             />
             {/* step 1 */}
             <div className="relative">
-              <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-accent-100 bg-white font-mono text-sm font-semibold text-accent-600">
+              <span className="sketch-pill relative z-10 flex h-10 w-10 items-center justify-center bg-white font-hand text-lg font-semibold text-accent-600">
                 1
               </span>
-              <h3 className="mt-5 font-medium text-gray-900">Enter your URL</h3>
-              <div className="mt-3 flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 font-mono text-xs text-gray-500">
+              <h3 className="mt-5 text-lg font-semibold text-gray-900">
+                Enter your URL
+              </h3>
+              <div className="sketch-border-soft mt-3 flex items-center gap-2 bg-white px-3 py-2 font-mono text-xs text-gray-500">
                 <span className="text-gray-300">https://</span>
                 yourdomain.com
-                <span className="ml-auto rounded bg-accent-500 px-2 py-0.5 text-[10px] font-medium text-white">
+                <span className="sketch-pill ml-auto bg-accent-600 px-2 py-0.5 text-[10px] font-medium text-white">
                   audit
                 </span>
               </div>
@@ -427,17 +428,19 @@ Allow: /`}
             </div>
             {/* step 2 */}
             <div className="relative">
-              <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-accent-100 bg-white font-mono text-sm font-semibold text-accent-600">
+              <span className="sketch-pill relative z-10 flex h-10 w-10 items-center justify-center bg-white font-hand text-lg font-semibold text-accent-600">
                 2
               </span>
-              <h3 className="mt-5 font-medium text-gray-900">Get your audit</h3>
-              <div className="mt-3 rounded-lg border border-gray-200 bg-white px-3 py-2">
+              <h3 className="mt-5 text-lg font-semibold text-gray-900">
+                Get your audit
+              </h3>
+              <div className="sketch-border-soft mt-3 bg-white px-3 py-2">
                 <div className="flex items-center gap-2 font-mono text-xs text-gray-500">
                   <span className="h-1.5 w-1.5 animate-pulse-soft rounded-full bg-accent-500" />
                   checking 9 categories…
                 </div>
-                <div className="mt-2 h-1 overflow-hidden rounded-full bg-gray-100">
-                  <div className="h-full w-2/3 rounded-full bg-accent-100" />
+                <div className="ink-bar mt-2 h-1 overflow-hidden bg-gray-100">
+                  <div className="ink-bar h-full w-2/3 bg-accent-100" />
                 </div>
               </div>
               <p className="mt-3 text-sm text-gray-500">
@@ -447,11 +450,13 @@ Allow: /`}
             </div>
             {/* step 3 */}
             <div className="relative">
-              <span className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-accent-100 bg-white font-mono text-sm font-semibold text-accent-600">
+              <span className="sketch-pill relative z-10 flex h-10 w-10 items-center justify-center bg-white font-hand text-lg font-semibold text-accent-600">
                 3
               </span>
-              <h3 className="mt-5 font-medium text-gray-900">Ship the fixes</h3>
-              <div className="mt-3 space-y-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 font-mono text-xs">
+              <h3 className="mt-5 text-lg font-semibold text-gray-900">
+                Ship the fixes
+              </h3>
+              <div className="sketch-border-soft mt-3 space-y-1.5 bg-white px-3 py-2 font-mono text-xs">
                 <p className="text-emerald-700">✓ llms-full.txt added</p>
                 <p className="text-emerald-700">✓ 14 stale URLs fixed</p>
                 <p className="text-gray-400">○ TL;DR blocks — in progress</p>
@@ -462,11 +467,15 @@ Allow: /`}
               </p>
             </div>
           </div>
+
+          <div className="mt-16">
+            <TerminalPanel />
+          </div>
         </div>
       </section>
 
       {/* Sample report */}
-      <section id="report" className="border-b border-gray-100 bg-gray-50/60">
+      <section id="report" className="border-b border-gray-200 bg-paper-deep/60">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
             What does a report look like?
@@ -476,19 +485,19 @@ Allow: /`}
             impact.
           </p>
 
-          <div className="mt-10 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex items-center gap-2 border-b border-gray-100 bg-gray-50 px-5 py-3">
+          <div className="sketch-card mt-10 overflow-hidden">
+            <div className="flex items-center gap-2 border-b border-gray-200 bg-gray-50 px-5 py-3">
               <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
               <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
               <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
-              <span className="ml-3 flex-1 truncate rounded-md bg-white px-3 py-1 text-xs text-gray-400">
+              <span className="sketch-pill ml-3 flex-1 truncate bg-white px-3 py-1 text-xs text-gray-400">
                 llmscore.io/report/meridianpayroll.com
               </span>
             </div>
             <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[0.85fr_1.15fr]">
               {/* left: gauge + summary */}
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                <p className="font-hand text-base text-gray-500">
                   meridianpayroll.com · 340 pages crawled
                 </p>
                 {/* gauge */}
@@ -499,16 +508,17 @@ Allow: /`}
                       cy="60"
                       r="52"
                       fill="none"
-                      stroke="#F5F5F4"
-                      strokeWidth="10"
+                      stroke="#E0D6C2"
+                      strokeWidth="3"
+                      strokeDasharray="4 5"
                     />
                     <circle
                       cx="60"
                       cy="60"
                       r="52"
                       fill="none"
-                      stroke="#3D63DD"
-                      strokeWidth="10"
+                      stroke="#8B4513"
+                      strokeWidth="4"
                       strokeLinecap="round"
                       strokeDasharray={`${0.64 * 2 * Math.PI * 52} ${2 * Math.PI * 52}`}
                       transform="rotate(-90 60 60)"
@@ -518,19 +528,21 @@ Allow: /`}
                       y="58"
                       textAnchor="middle"
                       className="fill-gray-900"
-                      fontSize="28"
+                      fontSize="30"
                       fontWeight="600"
+                      fontFamily="var(--font-serif)"
                     >
                       64
                     </text>
                     <text
                       x="60"
-                      y="76"
+                      y="78"
                       textAnchor="middle"
                       className="fill-gray-400"
-                      fontSize="11"
+                      fontSize="12"
+                      fontFamily="var(--font-hand)"
                     >
-                      /100
+                      of 100
                     </text>
                   </svg>
                   <div className="text-sm text-gray-500">
@@ -545,27 +557,27 @@ Allow: /`}
                     </p>
                   </div>
                 </div>
-                <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                <div className="sketch-border-soft mt-6 bg-gray-50 p-4">
+                  <p className="font-hand text-base text-accent-600">
                     Top fixes by impact
                   </p>
                   <ol className="mt-3 space-y-2.5 text-sm text-gray-600">
                     <li>
-                      <span className="mr-2 font-mono text-xs font-medium text-accent-600">01</span>
+                      <span className="mr-2 font-hand text-base font-medium text-accent-600">1.</span>
                       Create llms-full.txt — 212 of 340 indexable pages are
                       invisible to AI crawlers that use it.
                     </li>
                     <li>
-                      <span className="mr-2 font-mono text-xs font-medium text-accent-600">02</span>
+                      <span className="mr-2 font-hand text-base font-medium text-accent-600">2.</span>
                       Fix stale llms.txt — 14 URLs 404, 9 duplicates.
                     </li>
                     <li>
-                      <span className="mr-2 font-mono text-xs font-medium text-accent-600">03</span>
+                      <span className="mr-2 font-hand text-base font-medium text-accent-600">3.</span>
                       Unblock PerplexityBot in robots.txt — currently denied
                       site-wide.
                     </li>
                     <li>
-                      <span className="mr-2 font-mono text-xs font-medium text-accent-600">04</span>
+                      <span className="mr-2 font-hand text-base font-medium text-accent-600">4.</span>
                       Add TL;DR blocks to the 20 highest-traffic guides.
                     </li>
                   </ol>
@@ -622,14 +634,14 @@ Allow: /`}
                         {c.score}
                       </span>
                     </div>
-                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                    <div className="ink-bar mt-1.5 h-1.5 overflow-hidden bg-gray-100">
                       <div
-                        className={`h-full origin-left animate-bar-grow rounded-full ${
+                        className={`ink-bar h-full origin-left animate-bar-grow ${
                           c.score >= 80
-                            ? "bg-accent-500"
+                            ? "bg-emerald-600"
                             : c.score >= 60
-                              ? "bg-gray-400"
-                              : "bg-gray-300"
+                              ? "bg-amber-400"
+                              : "bg-red-500"
                         }`}
                         style={{ width: `${c.score}%` }}
                       />
@@ -644,14 +656,14 @@ Allow: /`}
       </section>
 
       {/* Pricing line + CTA */}
-      <section className="border-b border-gray-100">
+      <section className="border-b border-gray-200">
         <div className="mx-auto max-w-6xl px-6 py-20 text-center">
-          <p className="text-2xl font-semibold tracking-tight text-gray-900">
+          <p className="font-serif text-2xl font-semibold tracking-tight text-gray-900">
             Find out what the answer engines see.
           </p>
           <a
             href="#top"
-            className="mt-6 inline-block rounded-lg bg-accent-500 px-6 py-3 text-sm font-medium text-white transition hover:bg-accent-600"
+            className="sketch-btn mt-6 inline-block bg-accent-600 px-6 py-3 text-sm font-medium text-white"
           >
             Get your score
           </a>

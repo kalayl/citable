@@ -11,10 +11,137 @@ html {
 }
 
 body {
-  @apply bg-white font-sans text-gray-700 antialiased;
+  @apply bg-paper font-sans text-gray-700 antialiased;
+  position: relative;
+}
+
+/* Subtle paper grain over everything */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
 }
 
 ::selection {
-  background: #dfe9fc;
-  color: #1c1917;
+  background: #ead8c3;
+  color: #1a1a2e;
+}
+
+h1,
+h2,
+h3 {
+  @apply font-serif;
+}
+
+/* ---------- hand-drawn primitives ---------- */
+
+/* The classic wobbly-rectangle trick: asymmetric border radii read as ink lines */
+.sketch-border {
+  border: 1.5px solid rgba(26, 26, 46, 0.75);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+}
+
+.sketch-border-soft {
+  border: 1.5px solid rgba(26, 26, 46, 0.35);
+  border-radius: 185px 12px 158px 10px / 10px 158px 12px 185px;
+}
+
+.sketch-card {
+  border: 1.5px solid rgba(26, 26, 46, 0.6);
+  border-radius: 16px 4px 18px 5px / 5px 16px 4px 18px;
+  background: #fbf8f1;
+  box-shadow: 2px 3px 0 rgba(26, 26, 46, 0.12);
+}
+
+.sketch-card-accent {
+  border: 1.5px solid rgba(139, 69, 19, 0.65);
+  border-radius: 4px 18px 5px 16px / 18px 5px 16px 4px;
+  background: #fbf8f1;
+  box-shadow: 2px 3px 0 rgba(139, 69, 19, 0.15);
+}
+
+.sketch-pill {
+  border: 1.3px solid rgba(26, 26, 46, 0.55);
+  border-radius: 110px 95px 120px 90px / 90px 120px 95px 110px;
+}
+
+.sketch-btn {
+  border: 1.5px solid #1a1a2e;
+  border-radius: 12px 4px 14px 5px / 5px 12px 4px 14px;
+  box-shadow: 2px 2px 0 rgba(26, 26, 46, 0.85);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.sketch-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 rgba(26, 26, 46, 0.85);
+}
+
+.sketch-underline {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' viewBox='0 0 120 8'%3E%3Cpath d='M2 5.5 C 25 2.5, 48 6.5, 70 4 S 108 3, 118 5' fill='none' stroke='%238B4513' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0.45em;
+  padding-bottom: 0.18em;
+}
+
+/* Ink-wash score bars: slightly transparent, textured edge */
+.ink-bar {
+  position: relative;
+  opacity: 0.85;
+  border-radius: 2px 6px 3px 7px / 7px 3px 6px 2px;
+}
+
+/* ---------- hero sketch animation ---------- */
+
+.sketch-anim .draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: sketchDraw 1.4s ease forwards;
+}
+
+.sketch-anim .appear {
+  opacity: 0;
+  animation: sketchAppear 0.7s ease forwards;
+}
+
+.sketch-anim .scribble {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: sketchDraw 0.9s ease-out forwards;
+}
+
+@keyframes sketchDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sketchAppear {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sketch-anim .draw,
+  .sketch-anim .scribble {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .sketch-anim .appear {
+    animation: none;
+    opacity: 1;
+  }
 }
