@@ -131,7 +131,7 @@ export default function Home() {
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-                AI search is eating traditional search
+                Why is AI search eating traditional search?
               </h2>
               <p className="mt-4 text-gray-500">
                 Google AI Overviews, ChatGPT search and Perplexity now sit
@@ -178,7 +178,7 @@ export default function Home() {
       <section id="checks" className="border-b border-gray-100">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Nine audits, one score
+            What does Citable check?
           </h2>
           <p className="mt-3 max-w-2xl text-gray-500">
             Citable checks the full LLM optimisation layer that sits on top of
@@ -204,7 +204,7 @@ export default function Home() {
       <section id="how" className="border-b border-gray-100">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            How it works
+            How does Citable work?
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {steps.map((s) => (
@@ -226,7 +226,7 @@ export default function Home() {
       <section id="report" className="border-b border-gray-100">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            What a report looks like
+            What does a report look like?
           </h2>
           <p className="mt-3 max-w-2xl text-gray-500">
             Every category scored, every issue explained, every fix ranked by
@@ -308,7 +308,7 @@ export default function Home() {
       <section className="border-b border-gray-100">
         <div className="mx-auto max-w-5xl px-6 py-20 text-center">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            Early access
+            How much does it cost?
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-gray-500">
             Free preview scores during early access. Full audits with ranked
