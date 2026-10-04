@@ -1,59 +1,37 @@
-export function LogoMark({ size = 24 }: { size?: number }) {
+export function LogoMark({ size = 20 }: { size?: number }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      {/* Rounded square */}
-      <rect x="1" y="1" width="30" height="30" rx="8" fill="#0E1420" />
-      <rect
-        x="1"
-        y="1"
-        width="30"
-        height="30"
-        rx="8"
-        stroke="url(#lg)"
-        strokeWidth="1.5"
-      />
-      {/* Citation brackets */}
+      {/* Simple quotation mark in a rounded square */}
+      <rect width="24" height="24" rx="6" fill="#3D63DD" />
       <path
-        d="M12 9.5H9.5a1.5 1.5 0 0 0-1.5 1.5v10a1.5 1.5 0 0 0 1.5 1.5H12"
-        stroke="#49E3FF"
-        strokeWidth="2.4"
+        d="M9.5 8H7.75A1.75 1.75 0 0 0 6 9.75v4.5A1.75 1.75 0 0 0 7.75 16H9.5"
+        stroke="#fff"
+        strokeWidth="1.8"
         strokeLinecap="round"
       />
       <path
-        d="M20 9.5h2.5a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5H20"
-        stroke="#49E3FF"
-        strokeWidth="2.4"
+        d="M14.5 8h1.75A1.75 1.75 0 0 1 18 9.75v4.5A1.75 1.75 0 0 1 16.25 16H14.5"
+        stroke="#fff"
+        strokeWidth="1.8"
         strokeLinecap="round"
-        opacity="0.45"
       />
-      {/* Superscript citation dot */}
-      <circle cx="16" cy="16" r="2.6" fill="#49E3FF" />
-      <defs>
-        <linearGradient id="lg" x1="1" y1="1" x2="31" y2="31">
-          <stop stopColor="#49E3FF" stopOpacity="0.6" />
-          <stop offset="1" stopColor="#49E3FF" stopOpacity="0.12" />
-        </linearGradient>
-      </defs>
     </svg>
   );
 }
 
-export default function Logo({ size = 24 }: { size?: number }) {
+export default function Logo({ size = 20 }: { size?: number }) {
   return (
-    <span className="inline-flex items-center gap-2.5">
+    <span className="inline-flex items-center gap-2">
       <LogoMark size={size} />
-      <span className="font-display text-[1.15rem] font-semibold tracking-tight text-paper">
-        citable
-        <sup className="ml-0.5 font-mono text-[0.6rem] font-medium text-cite-400">
-          [1]
-        </sup>
+      <span className="text-[1.05rem] font-semibold tracking-tight text-gray-900">
+        Citable
       </span>
     </span>
   );

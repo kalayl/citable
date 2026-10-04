@@ -5,51 +5,44 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Deep navy ink scale
-        navy: {
-          950: "#070A11",
-          900: "#0A0E17",
-          850: "#0E1420",
-          800: "#131B2B",
-          700: "#1C2740",
-          600: "#2A3A5C",
+        // Warm neutral gray scale
+        gray: {
+          50: "#FAFAF9",
+          100: "#F5F5F4",
+          200: "#E7E5E4",
+          300: "#D6D3D1",
+          400: "#A8A29E",
+          500: "#78716C",
+          600: "#57534E",
+          700: "#44403C",
+          800: "#292524",
+          900: "#1C1917",
         },
-        // Electric cyan accent — "citation" blue
-        cite: {
-          300: "#8FEEFF",
-          400: "#49E3FF",
-          500: "#1FD2F4",
-          600: "#0FAFD1",
+        // Single muted blue accent
+        accent: {
+          50: "#EFF4FE",
+          100: "#DFE9FC",
+          500: "#3D63DD",
+          600: "#3156C4",
+          700: "#2947A3",
         },
-        // Warm amber for warnings
-        amber: {
-          300: "#FFD28A",
-          400: "#F7B955",
-        },
-        paper: "#EEF2F8",
       },
       fontFamily: {
-        display: ["var(--font-display)", "ui-sans-serif", "system-ui", "sans-serif"],
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       animation: {
+        "bar-grow": "barGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
         "pulse-soft": "pulseSoft 2s ease-in-out infinite",
-        "bar-grow": "barGrow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both",
-        scan: "scan 1.6s ease-in-out infinite",
       },
       keyframes: {
-        pulseSoft: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.5" },
-        },
         barGrow: {
           from: { transform: "scaleX(0)" },
           to: { transform: "scaleX(1)" },
         },
-        scan: {
-          "0%": { transform: "translateX(-100%)" },
-          "100%": { transform: "translateX(350%)" },
+        pulseSoft: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.4" },
         },
       },
     },

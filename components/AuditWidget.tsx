@@ -21,9 +21,9 @@ function overall(cats: Category[]) {
 }
 
 function barColor(score: number) {
-  if (score >= 80) return "bg-cite-500";
-  if (score >= 60) return "bg-amber-400";
-  return "bg-red-400";
+  if (score >= 80) return "bg-accent-500";
+  if (score >= 60) return "bg-gray-400";
+  return "bg-gray-300";
 }
 
 export default function AuditWidget() {
@@ -44,10 +44,10 @@ export default function AuditWidget() {
     <div className="w-full max-w-xl">
       <form
         onSubmit={run}
-        className="input-glow flex gap-1.5 rounded-xl border border-navy-600 bg-navy-850/80 p-1.5 backdrop-blur transition"
+        className="flex gap-1.5 rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm transition focus-within:border-accent-500"
       >
         <div className="flex flex-1 items-center gap-2 pl-3">
-          <span className="font-mono text-sm text-slate-500">https://</span>
+          <span className="text-sm text-gray-400">https://</span>
           <input
             type="text"
             inputMode="url"
@@ -55,46 +55,46 @@ export default function AuditWidget() {
             onChange={(e) => setUrl(e.target.value)}
             placeholder="yourdomain.com"
             aria-label="Website URL"
-            className="w-full bg-transparent py-2.5 font-mono text-sm text-paper placeholder-slate-600 outline-none"
+            className="w-full bg-transparent py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none"
           />
         </div>
         <button
           type="submit"
           disabled={state === "loading"}
-          className="rounded-lg bg-cite-500 px-5 py-2.5 text-sm font-semibold text-navy-950 transition hover:bg-cite-400 hover:shadow-[0_0_20px_-4px_rgba(31,210,244,0.5)] active:scale-[0.98] disabled:opacity-60"
+          className="rounded-lg bg-accent-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-accent-600 disabled:opacity-60"
         >
           {state === "loading" ? "Auditing…" : "Audit my site"}
         </button>
       </form>
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-gray-400">
         Free preview score. No signup required.
       </p>
 
       {state === "loading" && (
-        <div className="card-border mt-6 rounded-xl bg-navy-900 p-6">
-          <div className="flex items-center gap-3 text-sm text-slate-400">
-            <span className="h-2 w-2 animate-pulse-soft rounded-full bg-cite-500" />
+        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3 text-sm text-gray-500">
+            <span className="h-2 w-2 animate-pulse-soft rounded-full bg-accent-500" />
             Crawling {audited}… checking llms.txt, schema, robots, sitemaps…
           </div>
-          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-navy-700">
-            <div className="h-full w-1/3 animate-scan rounded-full bg-gradient-to-r from-transparent via-cite-500 to-transparent" />
+          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-gray-100">
+            <div className="h-full w-1/3 animate-pulse-soft rounded-full bg-accent-100" />
           </div>
         </div>
       )}
 
       {state === "done" && (
-        <div className="card-border mt-6 rounded-xl bg-navy-900 p-6 text-left">
+        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6 text-left shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-mono text-xs uppercase tracking-wider text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
                 AI search readiness — {audited}
               </p>
-              <p className="font-display mt-1 text-4xl font-bold text-paper">
+              <p className="mt-1 text-4xl font-semibold text-gray-900">
                 {overall(MOCK_CATEGORIES)}
-                <span className="text-lg font-normal text-slate-500">/100</span>
+                <span className="text-lg font-normal text-gray-400">/100</span>
               </p>
             </div>
-            <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-medium text-amber-300">
+            <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600">
               Needs work
             </span>
           </div>
@@ -102,10 +102,10 @@ export default function AuditWidget() {
             {MOCK_CATEGORIES.map((c, i) => (
               <div key={c.name}>
                 <div className="flex items-baseline justify-between text-sm">
-                  <span className="text-slate-300">{c.name}</span>
-                  <span className="font-mono text-slate-400">{c.score}/100</span>
+                  <span className="text-gray-700">{c.name}</span>
+                  <span className="tabular-nums text-gray-500">{c.score}/100</span>
                 </div>
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-navy-700">
+                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-100">
                   <div
                     className={`h-full origin-left animate-bar-grow rounded-full ${barColor(c.score)}`}
                     style={{
@@ -114,11 +114,11 @@ export default function AuditWidget() {
                     }}
                   />
                 </div>
-                <p className="mt-1 text-xs text-slate-500">{c.note}</p>
+                <p className="mt-1 text-xs text-gray-400">{c.note}</p>
               </div>
             ))}
           </div>
-          <p className="mt-5 rounded-lg border border-navy-600 bg-navy-850 p-3 text-xs text-slate-400">
+          <p className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-500">
             This is a sample preview. The full audit crawls your real pages and
             ranks every fix by impact. Early access is rolling out now.
           </p>

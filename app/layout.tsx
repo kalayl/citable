@@ -1,23 +1,10 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const display = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-display",
-  weight: ["500", "600", "700"],
-});
-
-const sans = IBM_Plex_Sans({
+const sans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["400", "500", "600"],
-});
-
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  weight: ["400", "500"],
 });
 
 const siteUrl = "https://citable.dev";
@@ -68,8 +55,7 @@ const jsonLd = {
       name: "Citable",
       url: siteUrl,
       logo: `${siteUrl}/og.png`,
-      description:
-        "Citable builds AI search readiness audits for websites.",
+      description: "Citable builds AI search readiness audits for websites.",
     },
     {
       "@type": "WebSite",
@@ -102,7 +88,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={sans.variable}>
       <head>
         <script
           type="application/ld+json"
