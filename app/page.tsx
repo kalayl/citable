@@ -44,7 +44,7 @@ const steps = [
   {
     n: "1",
     title: "Enter your URL",
-    body: "Point Citable at your domain. We crawl your pages, llms.txt, robots.txt, sitemaps and structured data.",
+    body: "Point LLMScore at your domain. We crawl your pages, llms.txt, robots.txt, sitemaps and structured data.",
   },
   {
     n: "2",
@@ -82,7 +82,7 @@ export default function Home() {
       {/* Nav */}
       <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <a href="#" aria-label="Citable home">
+          <a href="#" aria-label="LLMScore home">
             <Logo />
           </a>
           <nav className="hidden items-center gap-6 text-sm text-gray-500 sm:flex">
@@ -112,12 +112,12 @@ export default function Home() {
             Early access — AI search readiness audits
           </span>
           <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-            Will AI <span className="text-accent-500">cite</span> your site?
+            What&apos;s your <span className="text-accent-500">LLM score</span>?
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-gray-500">
-            ChatGPT, Perplexity and Google AI Overviews are answering your
-            customers&apos; questions. Citable audits whether your site is
-            structured to be their source — and tells you exactly what to fix.
+            AI search engines are answering your customers&apos; questions.
+            LLMScore audits whether your site is structured to be their source
+            — and tells you exactly what to fix.
           </p>
           <div className="mt-10 flex w-full justify-center">
             <AuditWidget />
@@ -149,7 +149,7 @@ export default function Home() {
             </div>
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-6">
               <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                The LLM layer Citable audits
+                The LLM layer LLMScore audits
               </p>
               <ul className="mt-4 space-y-3 text-sm text-gray-600">
                 <li className="flex gap-3">
@@ -178,10 +178,10 @@ export default function Home() {
       <section id="checks" className="border-b border-gray-100">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            What does Citable check?
+            What does LLMScore check?
           </h2>
           <p className="mt-3 max-w-2xl text-gray-500">
-            Citable checks the full LLM optimisation layer that sits on top of
+            LLMScore checks the full LLM optimisation layer that sits on top of
             your SEO.
           </p>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -204,7 +204,7 @@ export default function Home() {
       <section id="how" className="border-b border-gray-100">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
-            How does Citable work?
+            How does LLMScore work?
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {steps.map((s) => (
@@ -239,7 +239,7 @@ export default function Home() {
               <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
               <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
               <span className="ml-3 flex-1 truncate rounded-md bg-white px-3 py-1 text-xs text-gray-400">
-                citable.dev/report/example-saas.com
+                llmscore.io/report/example-saas.com
               </span>
             </div>
             <div className="p-6 sm:p-8">
@@ -327,9 +327,9 @@ export default function Home() {
       <footer className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 py-10 text-sm text-gray-400 sm:flex-row">
         <div className="flex items-center gap-2.5">
           <LogoMark size={18} />
-          <span>Citable — AI search readiness audits</span>
+          <span>LLMScore — AI search readiness audits</span>
         </div>
-        <p>© {new Date().getFullYear()} Citable. Built for the AI search era.</p>
+        <p>© {new Date().getFullYear()} LLMScore. Built for the AI search era.</p>
       </footer>
     </main>
   );

@@ -1,4 +1,4 @@
-# Citable — https://citable.dev
+# LLMScore — https://llmscore.io
 # We practice what we audit: all AI crawlers welcome.
 
 User-agent: *
@@ -22,4 +22,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://citable.dev/sitemap.xml
+Sitemap: https://llmscore.io/sitemap.xml

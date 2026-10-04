@@ -7,36 +7,37 @@ const sans = Inter({
   variable: "--font-sans",
 });
 
-const siteUrl = "https://citable.dev";
+const siteUrl = "https://llmscore.io";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Citable — Will AI cite your site?",
+  title: "LLMScore — What's your LLM score?",
   description:
-    "Citable audits your website's AI search readiness: llms.txt, JSON-LD, AI-crawler robots config, content extractability, sitemaps, canonicals and more. Get a 0–100 score with ranked fixes.",
+    "LLMScore audits your website's AI search readiness: llms.txt, JSON-LD, AI-crawler robots config, content extractability, sitemaps, canonicals and more. Get your LLM score (0–100) with ranked fixes.",
   keywords: [
-    "AI search optimization",
+    "LLM score",
     "LLM optimization",
+    "AI search readiness score",
+    "AI search optimization",
     "llms.txt",
     "AI Overviews",
     "generative engine optimization",
     "GEO",
-    "AI SEO audit",
   ],
   openGraph: {
-    title: "Citable — Will AI cite your site?",
+    title: "LLMScore — What's your LLM score?",
     description:
-      "Get your AI search readiness score. Citable audits the LLM layer on top of your SEO: llms.txt, JSON-LD, AI crawlers, extractability.",
+      "Get your LLM score. LLMScore audits the LLM layer on top of your SEO: llms.txt, JSON-LD, AI crawlers, extractability.",
     url: siteUrl,
-    siteName: "Citable",
+    siteName: "LLMScore",
     type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Citable" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "LLMScore" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Citable — Will AI cite your site?",
+    title: "LLMScore — What's your LLM score?",
     description:
-      "Get your AI search readiness score. Audit llms.txt, JSON-LD, AI crawlers and content extractability.",
+      "Get your LLM score. Audit llms.txt, JSON-LD, AI crawlers and content extractability.",
     images: ["/og.png"],
   },
   robots: { index: true, follow: true },
@@ -52,26 +53,26 @@ const jsonLd = {
     {
       "@type": "Organization",
       "@id": `${siteUrl}/#organization`,
-      name: "Citable",
+      name: "LLMScore",
       url: siteUrl,
       logo: `${siteUrl}/og.png`,
-      description: "Citable builds AI search readiness audits for websites.",
+      description: "LLMScore builds AI search readiness audits for websites.",
     },
     {
       "@type": "WebSite",
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
-      name: "Citable",
+      name: "LLMScore",
       publisher: { "@id": `${siteUrl}/#organization` },
     },
     {
       "@type": "SoftwareApplication",
-      name: "Citable",
+      name: "LLMScore",
       applicationCategory: "DeveloperApplication",
       operatingSystem: "Web",
       url: siteUrl,
       description:
-        "AI search readiness audit tool. Point Citable at a URL and get a 0–100 AI search readiness score with ranked, actionable fixes across llms.txt, JSON-LD, AI-crawler robots config, content extractability, sitemaps, canonicals, social cards and internal linking.",
+        "AI search readiness audit tool. Point LLMScore at a URL and get a 0–100 AI search readiness score with ranked, actionable fixes across llms.txt, JSON-LD, AI-crawler robots config, content extractability, sitemaps, canonicals, social cards and internal linking.",
       offers: {
         "@type": "Offer",
         price: "0",
