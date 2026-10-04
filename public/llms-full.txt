@@ -1,0 +1,7 @@
+# LLMScore - Full Page Index
+
+> Complete list of pages on llmscore.io. See https://llmscore.io/llms.txt for site overview.
+
+- [Home](https://llmscore.io): AI search readiness audit tool. Point it at a URL and get a 0-100 score with ranked fixes across llms.txt, JSON-LD, AI-crawler robots, content extractability, sitemaps, canonicals, and internal linking.
+- [Sign in](https://llmscore.io/signin): Sign in with GitHub, Google, or email to run audits and open PR fixes.
+- [Audit report](https://llmscore.io/report/llmscore.io): Live audit report for llmscore.io itself.
