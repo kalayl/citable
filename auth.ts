@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import Resend from "next-auth/providers/resend";
+import Credentials from "next-auth/providers/credentials";
 import { authConfig } from "./auth.config";
 
 /**
@@ -50,7 +51,6 @@ if (process.env.RESEND_API_KEY) {
 // Fallback: if no providers are configured, add a dummy credentials provider
 // so Auth.js doesn't crash. This allows the signin page to render.
 if (providers.length === 0) {
-  const Credentials = (await import("next-auth/providers/credentials")).default;
   providers.push(
     Credentials({
       name: "Early Access",
@@ -64,7 +64,7 @@ if (providers.length === 0) {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  providers,
+  providers: providers as any,
   callbacks: {
     ...authConfig.callbacks,
     async jwt({ token, account, profile }) {
