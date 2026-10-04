@@ -1,0 +1,9 @@
+# Citable
+
+> Citable is an AI search readiness audit tool. Point it at a URL and get a 0–100 score with ranked, actionable fixes across the LLM optimisation layer: llms.txt, llms-full.txt, JSON-LD for AI extraction, AI-crawler robots config, content extractability, sitemap completeness, canonical coverage, OG/Twitter cards and internal linking.
+
+Citable is built for B2B SaaS companies, content-heavy sites and marketing teams who depend on search traffic and are watching AI search (Google AI Overviews, ChatGPT search, Perplexity) grow.
+
+## Pages
+
+- [Home](https://citable.dev/): What Citable audits, how it works, and a sample report. Get your AI search readiness score.
