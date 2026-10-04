@@ -26,9 +26,9 @@ type AuditResult = {
 };
 
 function barColor(score: number) {
-  if (score >= 80) return "bg-accent-500";
-  if (score >= 60) return "bg-gray-400";
-  return "bg-gray-300";
+  if (score >= 80) return "bg-emerald-600";
+  if (score >= 60) return "bg-amber-400";
+  return "bg-red-500";
 }
 
 function scoreLabel(score: number) {
@@ -78,7 +78,7 @@ export default function AuditWidget() {
     <div className="w-full max-w-xl">
       <form
         onSubmit={run}
-        className="flex gap-1.5 rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm transition focus-within:border-accent-500"
+        className="sketch-border flex gap-1.5 bg-white p-1.5 transition focus-within:border-accent-500"
       >
         <div className="flex flex-1 items-center gap-2 pl-3">
           <span className="text-sm text-gray-400">https://</span>
@@ -95,29 +95,29 @@ export default function AuditWidget() {
         <button
           type="submit"
           disabled={state === "loading"}
-          className="rounded-lg bg-accent-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-accent-600 disabled:opacity-60"
+          className="sketch-btn bg-accent-600 px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60"
         >
           {state === "loading" ? "Auditing…" : "Audit my site"}
         </button>
       </form>
-      <p className="mt-2 text-xs text-gray-400">
+      <p className="mt-2 font-hand text-sm text-gray-500">
         Free audit. No signup required.
       </p>
 
       {state === "loading" && (
-        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="sketch-card mt-6 p-6">
           <div className="flex items-center gap-3 text-sm text-gray-500">
             <span className="h-2 w-2 animate-pulse-soft rounded-full bg-accent-500" />
             Crawling {audited}… checking llms.txt, schema, robots, sitemaps…
           </div>
-          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-gray-100">
-            <div className="h-full w-1/3 animate-pulse-soft rounded-full bg-accent-100" />
+          <div className="ink-bar mt-4 h-1.5 overflow-hidden bg-gray-100">
+            <div className="ink-bar h-full w-1/3 animate-pulse-soft bg-accent-100" />
           </div>
         </div>
       )}
 
       {state === "error" && (
-        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="sketch-card mt-6 p-6">
           <p className="text-sm text-gray-700">
             <span className="font-medium text-red-500">Audit failed:</span>{" "}
             {error}
@@ -129,18 +129,18 @@ export default function AuditWidget() {
       )}
 
       {state === "done" && result && (
-        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6 text-left shadow-sm">
+        <div className="sketch-card mt-6 p-6 text-left">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+              <p className="font-hand text-base text-gray-500">
                 AI search readiness — {audited}
               </p>
-              <p className="mt-1 text-4xl font-semibold text-gray-900">
+              <p className="mt-1 font-serif text-4xl font-semibold text-gray-900">
                 {result.overallScore}
                 <span className="text-lg font-normal text-gray-400">/100</span>
               </p>
             </div>
-            <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600">
+            <span className="sketch-pill bg-gray-50 px-3 py-1 font-hand text-sm text-gray-600">
               {scoreLabel(result.overallScore)}
             </span>
           </div>
@@ -151,9 +151,9 @@ export default function AuditWidget() {
                   <span className="text-gray-700">{c.name}</span>
                   <span className="tabular-nums text-gray-500">{c.score}/100</span>
                 </div>
-                <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                <div className="ink-bar mt-1 h-1.5 overflow-hidden bg-gray-100">
                   <div
-                    className={`h-full origin-left animate-bar-grow rounded-full ${barColor(c.score)}`}
+                    className={`ink-bar h-full origin-left animate-bar-grow ${barColor(c.score)}`}
                     style={{
                       width: `${c.score}%`,
                       animationDelay: `${i * 70}ms`,
@@ -170,14 +170,14 @@ export default function AuditWidget() {
           </div>
 
           {result.topFixes.length > 0 && (
-            <div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-4">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+            <div className="sketch-border-soft mt-5 bg-gray-50 p-4">
+              <p className="font-hand text-base text-accent-600">
                 Top fixes by impact
               </p>
               <ol className="mt-3 space-y-2 text-xs text-gray-600">
                 {result.topFixes.slice(0, 3).map((fix, i) => (
                   <li key={i}>
-                    <span className="mr-2 font-medium text-accent-600">{i + 1}</span>
+                    <span className="mr-2 font-hand text-sm font-medium text-accent-600">{i + 1}.</span>
                     {fix.message}
                   </li>
                 ))}
