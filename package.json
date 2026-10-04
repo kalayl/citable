@@ -6,12 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "mcp": "tsx mcp-server/index.ts",
+    "mcp:test": "tsx mcp-server/test.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.31.0",
     "next": "^16.3.8",
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "22.10.5",
@@ -20,6 +24,7 @@
     "autoprefixer": "10.4.20",
     "postcss": "8.4.49",
     "tailwindcss": "3.4.17",
+    "tsx": "^4.23.15",
     "typescript": "5.7.3"
   }
 }
