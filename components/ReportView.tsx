@@ -57,10 +57,110 @@ function SeverityBadge({ s }: { s: Severity }) {
   );
 }
 
+type Repo = { fullName: string; url: string };
+type FixState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "done"; prUrl: string }
+  | { status: "error"; message: string };
+
+function FixButton({
+  domain,
+  categoryKey,
+  repos,
+  small,
+}: {
+  domain: string;
+  categoryKey: string;
+  repos: Repo[];
+  small?: boolean;
+}) {
+  const [repo, setRepo] = useState(repos[0]?.fullName ?? "");
+  const [state, setState] = useState<FixState>({ status: "idle" });
+
+  async function createPr() {
+    if (!repo) return;
+    setState({ status: "loading" });
+    try {
+      const res = await fetch("/api/fix", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ domain, category: categoryKey, repo }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create PR");
+      setState({ status: "done", prUrl: data.prUrl });
+    } catch (e) {
+      setState({
+        status: "error",
+        message: e instanceof Error ? e.message : "Failed to create PR",
+      });
+    }
+  }
+
+  if (state.status === "done") {
+    return (
+      <a
+        href={state.prUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-mono text-xs font-semibold text-accent-600 underline underline-offset-2"
+      >
+        View PR →
+      </a>
+    );
+  }
+
+  return (
+    <div className={`flex flex-wrap items-center gap-2 ${small ? "" : "mt-2"}`}>
+      <select
+        value={repo}
+        onChange={(e) => setRepo(e.target.value)}
+        className="max-w-[180px] rounded border border-gray-200 bg-white px-2 py-1 font-mono text-[11px] text-gray-600"
+        disabled={state.status === "loading"}
+      >
+        {repos.map((r) => (
+          <option key={r.fullName} value={r.fullName}>
+            {r.fullName}
+          </option>
+        ))}
+      </select>
+      <button
+        onClick={createPr}
+        disabled={state.status === "loading" || !repo}
+        className="rounded bg-accent-600 px-2.5 py-1 font-mono text-[11px] font-semibold text-white hover:bg-accent-700 disabled:opacity-50"
+      >
+        {state.status === "loading" ? "Creating PR…" : small ? "Fix" : "Create PR"}
+      </button>
+      {state.status === "error" && (
+        <span className="text-[11px] text-red-600">{state.message}</span>
+      )}
+    </div>
+  );
+}
+
 export default function ReportView({ domain }: { domain: string }) {
   const [audit, setAudit] = useState<Audit | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [github, setGithub] = useState<{ connected: boolean; repos: Repo[] } | null>(null);
+
+  useEffect(() => {
+    if (!audit) return;
+    let cancelled = false;
+    fetch("/api/github/repos")
+      .then((r) => (r.ok ? r.json() : { connected: false, repos: [] }))
+      .then((d) => {
+        if (!cancelled)
+          setGithub({ connected: !!d.connected, repos: d.repos ?? [] });
+      })
+      .catch(() => {
+        if (!cancelled) setGithub({ connected: false, repos: [] });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [audit]);
 
   useEffect(() => {
     let cancelled = false;
@@ -175,6 +275,50 @@ export default function ReportView({ domain }: { domain: string }) {
         </section>
       )}
 
+      {/* Fix via GitHub PR */}
+      {audit.topFixes.length > 0 && github && (
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold tracking-tight">Fix via GitHub PR</h2>
+          {!github.connected ? (
+            <div className="mt-4 rounded-xl border border-gray-200 p-4 text-sm text-gray-600">
+              Connect GitHub to turn fixes into PRs.{" "}
+              <a
+                href="/signin"
+                className="font-semibold text-accent-600 underline underline-offset-2"
+              >
+                Sign in with GitHub
+              </a>
+            </div>
+          ) : github.repos.length === 0 ? (
+            <div className="mt-4 rounded-xl border border-gray-200 p-4 text-sm text-gray-500">
+              No public repos found.
+            </div>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {audit.topFixes.map((f, i) => {
+                const key =
+                  audit.categories.find((c) => c.name === f.category)?.key ?? f.category;
+                return (
+                  <div
+                    key={i}
+                    className="rounded-xl border border-gray-200 p-4"
+                  >
+                    <div className="flex items-start gap-3">
+                      <SeverityBadge s={f.severity} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{f.message}</p>
+                        <p className="mt-1 font-mono text-[11px] text-gray-400">{key}</p>
+                        <FixButton domain={audit.domain} categoryKey={key} repos={github.repos} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Categories */}
       <section className="mt-12">
         <h2 className="text-lg font-semibold tracking-tight">Category detail</h2>
@@ -190,6 +334,16 @@ export default function ReportView({ domain }: { domain: string }) {
                   {c.score}
                 </span>
                 <span className="font-medium">{c.name}</span>
+                {c.score < 80 && github?.connected && github.repos.length > 0 && (
+                  <span onClick={(e) => e.preventDefault()}>
+                    <FixButton
+                      domain={audit.domain}
+                      categoryKey={c.key}
+                      repos={github.repos}
+                      small
+                    />
+                  </span>
+                )}
                 <div className="ml-auto h-1.5 w-32 overflow-hidden rounded-full bg-gray-100">
                   <div
                     className={`h-full rounded-full ${barColor(c.score)}`}
