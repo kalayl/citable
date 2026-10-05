@@ -134,24 +134,38 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { domain?: string; category?: string; issueIndex?: number; repo?: string };
+  let body: {
+    domain?: string;
+    category?: string;
+    categories?: string[];
+    issueIndex?: number;
+    repo?: string;
+  };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
-  const { domain, category, repo } = body;
-  if (!domain || !category || !repo || !repo.includes("/")) {
+  const { domain, repo } = body;
+  // Backward compat: single `category` or new `categories` array
+  const categories = (
+    body.categories && body.categories.length > 0
+      ? body.categories
+      : body.category
+        ? [body.category]
+        : []
+  ).filter((c, i, arr) => arr.indexOf(c) === i);
+  if (!domain || categories.length === 0 || !repo || !repo.includes("/")) {
     return NextResponse.json(
-      { error: "Missing required fields: domain, category, repo (owner/repo)" },
+      { error: "Missing required fields: domain, categories, repo (owner/repo)" },
       { status: 400 },
     );
   }
 
-  const plan = FIX_PLANS[category];
-  if (!plan) {
+  const unknown = categories.filter((c) => !FIX_PLANS[c]);
+  if (unknown.length > 0) {
     return NextResponse.json(
-      { error: `No automated fix available for category '${category}'` },
+      { error: `No automated fix available for: ${unknown.join(", ")}` },
       { status: 400 },
     );
   }
@@ -165,75 +179,123 @@ export async function POST(req: NextRequest) {
     // 2. Find the base branch
     const base = await getDefaultBranch(token, owner, repoName);
 
-    // 3. Find the target file (first existing candidate, else first candidate)
-    let targetPath = plan.candidates[0];
-    let currentFile = null;
-    for (const candidate of plan.candidates) {
-      const f = await getFile(token, owner, repoName, candidate, base.branch);
-      if (f) {
-        targetPath = candidate;
-        currentFile = f;
-        break;
+    // 3. Compute changes for each category before creating any branch
+    const sitemapUrls = await fetchSitemapUrls(audit.url);
+    const changes: {
+      category: string;
+      plan: FixPlan;
+      targetPath: string;
+      fixed: string;
+      currentFile: { content: string; sha: string } | null;
+    }[] = [];
+    const skipped: string[] = [];
+
+    for (const category of categories) {
+      const plan = FIX_PLANS[category];
+      let targetPath = plan.candidates[0];
+      let currentFile = null;
+      for (const candidate of plan.candidates) {
+        const f = await getFile(token, owner, repoName, candidate, base.branch);
+        if (f) {
+          targetPath = candidate;
+          currentFile = f;
+          break;
+        }
       }
+      const fixed = plan.generate(currentFile?.content ?? null, audit, sitemapUrls);
+      if (currentFile && currentFile.content === fixed) {
+        skipped.push(category);
+        continue;
+      }
+      changes.push({ category, plan, targetPath, fixed, currentFile });
     }
 
-    // 4. Generate the fixed content
-    const sitemapUrls = await fetchSitemapUrls(audit.url);
-    const fixed = plan.generate(currentFile?.content ?? null, audit, sitemapUrls);
-
-    if (currentFile && currentFile.content === fixed) {
+    if (changes.length === 0) {
       return NextResponse.json(
-        { error: "File already looks correct — no changes needed." },
-        { status: 409 }
+        { error: "All files already look correct — no changes needed." },
+        { status: 409 },
       );
     }
 
-    // 5. Create branch
-    const branchName = `llmscore/fix-${category}-${Date.now()}`;
+    // 4. Create one branch for all fixes
+    const branchName = `llmscore/fixes-${Date.now()}`;
     await createBranch(token, owner, repoName, branchName, base.sha);
 
-    // 6. Commit the file
-    await putFile(token, owner, repoName, targetPath, {
-      content: fixed,
-      message: `${plan.title} (${targetPath})`,
-      branch: branchName,
-      sha: currentFile?.sha,
+    // 5. Commit each fix to the same branch. Multiple categories can target
+    // the same file (e.g. index.html): chain content and re-fetch the sha
+    // from the branch so commits stack correctly.
+    const committedPaths = new Set<string>();
+    for (const ch of changes) {
+      let content = ch.fixed;
+      let sha = ch.currentFile?.sha;
+      if (committedPaths.has(ch.targetPath)) {
+        const latest = await getFile(token, owner, repoName, ch.targetPath, branchName);
+        content = ch.plan.generate(latest?.content ?? null, audit, sitemapUrls);
+        sha = latest?.sha;
+        if (latest && latest.content === content) continue;
+      }
+      await putFile(token, owner, repoName, ch.targetPath, {
+        content,
+        message: `${ch.plan.title} (${ch.targetPath})`,
+        branch: branchName,
+        sha,
+      });
+      committedPaths.add(ch.targetPath);
+    }
+
+    // 6. Open one PR covering all fixes
+    const single = changes.length === 1;
+    const prTitle = single
+      ? changes[0].plan.title
+      : `LLMScore: ${changes.length} AI-search fixes for ${audit.domain}`;
+
+    const sections = changes.map((ch) => {
+      const issueList = (audit.categories.find((c) => c.key === ch.category)?.issues || [])
+        .filter((i) => i.severity !== "pass")
+        .map((i) => `- **${i.severity}**: ${i.message}`)
+        .join("\n");
+      return [
+        `## ${ch.plan.title}`,
+        "",
+        ch.plan.summary,
+        "",
+        "### Issues found by the audit",
+        issueList || "- (see full report)",
+        "",
+        "### Changed",
+        `- \`${ch.targetPath}\` (${ch.currentFile ? "updated" : "created"})`,
+      ].join("\n");
     });
 
-    // 7. Open PR
-    const issueList = (audit.categories.find((c) => c.key === category)?.issues || [])
-      .filter((i) => i.severity !== "pass")
-      .map((i) => `- **${i.severity}**: ${i.message}`)
-      .join("\n");
-
     const prBody = [
-      `## ${plan.title}`,
-      "",
-      plan.summary,
-      "",
-      "### Issues found by the audit",
-      issueList || "- (see full report)",
-      "",
-      `### Changed`,
-      `- \`${targetPath}\` (${currentFile ? "updated" : "created"})`,
-      "",
+      ...sections,
       `---`,
       `Generated by [LLMScore](https://llmscore.dev) from an audit of **${audit.domain}** (score: ${audit.overallScore}/100). Review the diff, then merge.`,
-    ].join("\n");
+    ].join("\n\n");
 
     const prUrl = await createPullRequest(token, owner, repoName, {
-      title: plan.title,
+      title: prTitle,
       body: prBody,
       head: branchName,
       base: base.branch,
     });
 
     if (billingEnabled) {
-      await recordPrFix(sessionId, `${repo} ${category}`);
+      await recordPrFix(sessionId, `${repo} ${changes.map((c) => c.category).join(",")}`);
     }
-    await trackFixPR(domain, category, prUrl, session.user.email);
+    await trackFixPR(
+      domain,
+      changes.map((c) => c.category).join(","),
+      prUrl,
+      session.user.email,
+    );
 
-    return NextResponse.json({ prUrl, branch: branchName, path: targetPath });
+    return NextResponse.json({
+      prUrl,
+      branch: branchName,
+      categories: changes.map((c) => c.category),
+      skipped,
+    });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Fix failed";
     return NextResponse.json({ error: message }, { status: 500 });

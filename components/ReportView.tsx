@@ -64,28 +64,59 @@ type FixState =
   | { status: "done"; prUrl: string }
   | { status: "error"; message: string };
 
-function FixButton({
-  domain,
-  categoryKey,
-  repos,
-  small,
-}: {
-  domain: string;
-  categoryKey: string;
-  repos: Repo[];
-  small?: boolean;
-}) {
-  const [repo, setRepo] = useState(repos[0]?.fullName ?? "");
+const FIXABLE_KEYS = [
+  "llms-txt",
+  "robots",
+  "json-ld",
+  "sitemap",
+  "canonicals",
+  "og-cards",
+];
+const REPO_STORAGE_KEY = "llmscore:selected-repo";
+
+function FixSection({ audit, github }: { audit: Audit; github: { connected: boolean; repos: Repo[] } }) {
+  const [repo, setRepo] = useState("");
   const [state, setState] = useState<FixState>({ status: "idle" });
 
+  const fixableCategories = audit.categories.filter(
+    (c) =>
+      FIXABLE_KEYS.includes(c.key) &&
+      c.score < 80 &&
+      c.issues.some((i) => i.severity !== "pass"),
+  );
+
+  useEffect(() => {
+    if (github.repos.length === 0) return;
+    const saved =
+      typeof window !== "undefined" ? localStorage.getItem(REPO_STORAGE_KEY) : null;
+    if (saved && github.repos.some((r) => r.fullName === saved)) {
+      setRepo(saved);
+    } else {
+      setRepo(github.repos[0].fullName);
+    }
+  }, [github.repos]);
+
+  function selectRepo(value: string) {
+    setRepo(value);
+    try {
+      localStorage.setItem(REPO_STORAGE_KEY, value);
+    } catch {
+      // ignore storage errors
+    }
+  }
+
   async function createPr() {
-    if (!repo) return;
+    if (!repo || fixableCategories.length === 0) return;
     setState({ status: "loading" });
     try {
       const res = await fetch("/api/fix", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ domain, category: categoryKey, repo }),
+        body: JSON.stringify({
+          domain: audit.domain,
+          repo,
+          categories: fixableCategories.map((c) => c.key),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create PR");
@@ -98,43 +129,87 @@ function FixButton({
     }
   }
 
-  if (state.status === "done") {
+  if (!github.connected) {
     return (
-      <a
-        href={state.prUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="font-mono text-xs font-semibold text-accent-600 underline underline-offset-2"
-      >
-        View PR →
-      </a>
+      <div className="mt-4 rounded-xl border border-gray-200 p-4 text-sm text-gray-600">
+        Connect GitHub to turn these fixes into a PR.{" "}
+        <a
+          href="/signin"
+          className="font-semibold text-accent-600 underline underline-offset-2"
+        >
+          Sign in with GitHub
+        </a>
+      </div>
+    );
+  }
+
+  if (github.repos.length === 0) {
+    return (
+      <div className="mt-4 rounded-xl border border-gray-200 p-4 text-sm text-gray-500">
+        No public repos found.
+      </div>
+    );
+  }
+
+  if (fixableCategories.length === 0) {
+    return (
+      <div className="mt-4 rounded-xl border border-gray-200 p-4 text-sm text-gray-500">
+        No automated fixes needed — everything fixable already looks good.
+      </div>
     );
   }
 
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${small ? "" : "mt-2"}`}>
-      <select
-        value={repo}
-        onChange={(e) => setRepo(e.target.value)}
-        className="max-w-[180px] rounded border border-gray-200 bg-white px-2 py-1 font-mono text-[11px] text-gray-600"
-        disabled={state.status === "loading"}
-      >
-        {repos.map((r) => (
-          <option key={r.fullName} value={r.fullName}>
-            {r.fullName}
-          </option>
-        ))}
-      </select>
-      <button
-        onClick={createPr}
-        disabled={state.status === "loading" || !repo}
-        className="rounded bg-accent-600 px-2.5 py-1 font-mono text-[11px] font-semibold text-white hover:bg-accent-700 disabled:opacity-50"
-      >
-        {state.status === "loading" ? "Creating PR…" : small ? "Fix" : "Create PR"}
-      </button>
+    <div className="mt-4 rounded-xl border border-gray-200 p-5">
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="font-mono text-[11px] uppercase tracking-wider text-gray-400">
+          Repo
+        </label>
+        <select
+          value={repo}
+          onChange={(e) => selectRepo(e.target.value)}
+          className="max-w-[260px] rounded border border-gray-200 bg-white px-2 py-1.5 font-mono text-xs text-gray-700"
+          disabled={state.status === "loading"}
+        >
+          {github.repos.map((r) => (
+            <option key={r.fullName} value={r.fullName}>
+              {r.fullName}
+            </option>
+          ))}
+        </select>
+        {state.status === "done" ? (
+          <a
+            href={state.prUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-xs font-semibold text-accent-600 underline underline-offset-2"
+          >
+            PR created: view it →
+          </a>
+        ) : (
+          <button
+            onClick={createPr}
+            disabled={state.status === "loading" || !repo}
+            className="rounded bg-accent-600 px-3 py-1.5 font-mono text-xs font-semibold text-white hover:bg-accent-700 disabled:opacity-50"
+          >
+            {state.status === "loading"
+              ? "Creating PR…"
+              : `Create PR with all fixes (${fixableCategories.length})`}
+          </button>
+        )}
+      </div>
       {state.status === "error" && (
-        <span className="text-[11px] text-red-600">{state.message}</span>
+        <p className="mt-2 text-xs text-red-600">{state.message}</p>
       )}
+      <ul className="mt-4 space-y-1.5">
+        {fixableCategories.map((c) => (
+          <li key={c.key} className="flex items-center gap-2 text-sm text-gray-600">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500" />
+            {c.name}
+            <span className="font-mono text-[11px] text-gray-400">{c.key}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -279,43 +354,7 @@ export default function ReportView({ domain }: { domain: string }) {
       {audit.topFixes.length > 0 && github && (
         <section className="mt-10">
           <h2 className="text-lg font-semibold tracking-tight">Fix via GitHub PR</h2>
-          {!github.connected ? (
-            <div className="mt-4 rounded-xl border border-gray-200 p-4 text-sm text-gray-600">
-              Connect GitHub to turn fixes into PRs.{" "}
-              <a
-                href="/signin"
-                className="font-semibold text-accent-600 underline underline-offset-2"
-              >
-                Sign in with GitHub
-              </a>
-            </div>
-          ) : github.repos.length === 0 ? (
-            <div className="mt-4 rounded-xl border border-gray-200 p-4 text-sm text-gray-500">
-              No public repos found.
-            </div>
-          ) : (
-            <div className="mt-4 space-y-3">
-              {audit.topFixes.map((f, i) => {
-                const key =
-                  audit.categories.find((c) => c.name === f.category)?.key ?? f.category;
-                return (
-                  <div
-                    key={i}
-                    className="rounded-xl border border-gray-200 p-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <SeverityBadge s={f.severity} />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{f.message}</p>
-                        <p className="mt-1 font-mono text-[11px] text-gray-400">{key}</p>
-                        <FixButton domain={audit.domain} categoryKey={key} repos={github.repos} />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <FixSection audit={audit} github={github} />
         </section>
       )}
 
@@ -334,16 +373,6 @@ export default function ReportView({ domain }: { domain: string }) {
                   {c.score}
                 </span>
                 <span className="font-medium">{c.name}</span>
-                {c.score < 80 && github?.connected && github.repos.length > 0 && (
-                  <span onClick={(e) => e.preventDefault()}>
-                    <FixButton
-                      domain={audit.domain}
-                      categoryKey={c.key}
-                      repos={github.repos}
-                      small
-                    />
-                  </span>
-                )}
                 <div className="ml-auto h-1.5 w-32 overflow-hidden rounded-full bg-gray-100">
                   <div
                     className={`h-full rounded-full ${barColor(c.score)}`}
