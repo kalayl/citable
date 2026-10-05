@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ================================================================
+   Prototype F — clean white system-diagram aesthetic.
+   Straight borders, soft shadows, Inter + JetBrains Mono.
+   The legacy sketch-* class names are kept as a compatibility
+   layer so every component inherits the new look.
+   ================================================================ */
+
 :root {
   color-scheme: light;
 }
@@ -11,94 +18,89 @@ html {
 }
 
 body {
-  @apply bg-paper font-sans text-gray-700 antialiased;
+  @apply font-sans text-gray-700 antialiased;
+  background: linear-gradient(180deg, #fafbfa 0%, #f1f3f0 100%);
+  background-attachment: fixed;
   position: relative;
 }
 
-/* Subtle paper grain over everything */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  pointer-events: none;
-  opacity: 0.5;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
-}
-
 ::selection {
-  background: #d7e1cc;
-  color: #1a1a2e;
+  background: #cfdccb;
+  color: #15181a;
 }
 
 h1,
 h2,
 h3 {
-  @apply font-serif;
+  @apply font-sans tracking-tight;
 }
 
-/* ---------- hand-drawn primitives ---------- */
+/* ---------- clean diagram primitives (legacy names) ---------- */
 
-/* The classic wobbly-rectangle trick: asymmetric border radii read as ink lines */
 .sketch-border {
-  border: 1.5px solid rgba(26, 26, 46, 0.75);
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  border: 1px solid #e2e5e0;
+  border-radius: 12px;
 }
 
 .sketch-border-soft {
-  border: 1.5px solid rgba(26, 26, 46, 0.35);
-  border-radius: 185px 12px 158px 10px / 10px 158px 12px 185px;
+  border: 1px solid #e2e5e0;
+  border-radius: 10px;
+  background: #ffffff;
 }
 
 .sketch-card {
-  border: 1.5px solid rgba(26, 26, 46, 0.6);
-  border-radius: 16px 4px 18px 5px / 5px 16px 4px 18px;
-  background: #fdfbf7;
-  box-shadow: 2px 3px 0 rgba(26, 26, 46, 0.12);
+  border: 1px solid #e2e5e0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(21, 24, 26, 0.07);
 }
 
 .sketch-card-accent {
-  border: 1.5px solid rgba(85, 114, 78, 0.65);
-  border-radius: 4px 18px 5px 16px / 18px 5px 16px 4px;
-  background: #fdfbf7;
-  box-shadow: 2px 3px 0 rgba(85, 114, 78, 0.15);
+  border: 1px solid #cfdccb;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(85, 114, 78, 0.12);
 }
 
 .sketch-pill {
-  border: 1.3px solid rgba(26, 26, 46, 0.55);
-  border-radius: 110px 95px 120px 90px / 90px 120px 95px 110px;
+  border: 1px solid #e2e5e0;
+  border-radius: 999px;
+  background: #ffffff;
 }
 
 .sketch-btn {
-  border: 1.5px solid #1a1a2e;
-  border-radius: 12px 4px 14px 5px / 5px 12px 4px 14px;
-  box-shadow: 2px 2px 0 rgba(26, 26, 46, 0.85);
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(85, 114, 78, 0.3);
   transition:
     transform 0.12s ease,
     box-shadow 0.12s ease;
 }
 
 .sketch-btn:hover {
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 rgba(26, 26, 46, 0.85);
+  transform: translateY(1px);
+  box-shadow: 0 6px 16px rgba(85, 114, 78, 0.25);
 }
 
 .sketch-underline {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' viewBox='0 0 120 8'%3E%3Cpath d='M2 5.5 C 25 2.5, 48 6.5, 70 4 S 108 3, 118 5' fill='none' stroke='%2355724E' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 100% 0.45em;
-  padding-bottom: 0.18em;
+  text-decoration: none;
+  color: #55724e;
 }
 
-/* Ink-wash score bars: slightly transparent, textured edge */
+/* annotations: mono uppercase labels instead of handwriting */
+.font-hand {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.78em;
+  font-weight: 600;
+}
+
 .ink-bar {
   position: relative;
-  opacity: 0.85;
-  border-radius: 2px 6px 3px 7px / 7px 3px 6px 2px;
+  border-radius: 999px;
 }
 
-/* ---------- hero sketch animation ---------- */
+/* ---------- hero diagram animation (kept for safety) ---------- */
 
 .sketch-anim .draw {
   stroke-dasharray: 1;

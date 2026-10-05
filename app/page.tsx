@@ -2,7 +2,6 @@ import Link from "next/link";
 import AuditWidget from "@/components/AuditWidget";
 import Pricing from "@/components/Pricing";
 import AccountMenu from "@/components/AccountMenu";
-import HeroSketch from "@/components/HeroSketch";
 import { LogoMark } from "@/components/Logo";
 
 /* ================================================================
@@ -36,6 +35,23 @@ function Annotation({ children }: { children: React.ReactNode }) {
   return <p className="font-hand text-lg text-accent-600">{children}</p>;
 }
 
+function FlowArrow() {
+  return (
+    <div className="flex items-center justify-center px-1.5 max-lg:rotate-90 max-lg:py-3">
+      <svg width="54" height="24" viewBox="0 0 54 24" aria-hidden="true">
+        <path
+          d="M2 12h44m0 0l-8-7m8 7l-8 7"
+          stroke="#55724E"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
 /* ---------- page ---------- */
 
 export default function Home() {
@@ -44,95 +60,136 @@ export default function Home() {
       {/* ============================================================
           1. HERO — the question. Near-full viewport, no nav, no clutter.
           ============================================================ */}
-      <section
-        id="top"
-        className="relative flex min-h-[92vh] flex-col justify-center border-b border-gray-200"
-      >
-        <div className="absolute left-0 right-0 top-0 z-10">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-            <div className="flex items-center gap-2.5">
-              <LogoMark size={20} />
-              <span className="font-sans text-base font-semibold text-gray-900">
-                LLMScore
+      <section id="top" className="relative border-b border-gray-200">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+          <div className="flex items-center gap-2.5">
+            <LogoMark size={20} />
+            <span className="font-sans text-base font-extrabold tracking-tight text-gray-900">
+              LLM<span className="text-accent-600">Score</span>
+            </span>
+          </div>
+          <AccountMenu />
+        </div>
+
+        <div className="mx-auto w-full max-w-6xl px-6 pb-4 pt-14 text-center sm:pt-16">
+          <span className="inline-block rounded-full border border-accent-100 bg-accent-50 px-4 py-1.5 text-[12.5px] font-semibold text-accent-600">
+            AI search readiness, automated
+          </span>
+          <h1 className="mx-auto mt-6 max-w-4xl font-sans text-[clamp(34px,5.5vw,60px)] font-extrabold leading-[1.08] tracking-tight text-gray-900">
+            Audit your site. Ship the fixes.
+            <br />
+            <span className="text-accent-600">Get cited.</span>
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-gray-500">
+            LLMScore runs a 9-category audit of how AI search engines read your
+            site, ranks the fixes by impact, and opens the GitHub PRs for you.
+            The only tool that ships fixes, not just scores.
+          </p>
+          <div className="mx-auto mt-9 max-w-xl">
+            <AuditWidget />
+          </div>
+        </div>
+
+        {/* ========================================================
+            WORKFLOW DIAGRAM — the hero visual.
+            URL → Audit (score + ranked fixes) → GitHub PR
+            ======================================================== */}
+        <div className="mx-auto max-w-6xl px-6 pb-16 pt-12 sm:pb-20">
+          <div className="flex flex-wrap items-stretch justify-center max-lg:flex-col max-lg:items-center">
+            {/* INPUT */}
+            <div className="sketch-card w-[300px] p-6 text-left max-lg:w-full max-lg:max-w-[360px]">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">
+                Your site
+              </h3>
+              <div className="mt-3.5 flex items-center gap-2 rounded-[10px] border border-gray-200 bg-gray-100 px-3 py-2.5 font-mono text-[13px] text-gray-700">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-accent-600" />
+                https://yoursite.com
+              </div>
+              <p className="mt-3 text-[12.5px] leading-relaxed text-gray-400">
+                Paste a URL. No install, no tracking script, no access needed.
+              </p>
+              <span className="mt-3 inline-block font-mono text-[11px] font-semibold tracking-[0.06em] text-signal">
+                INPUT
               </span>
             </div>
-            <AccountMenu />
-          </div>
-        </div>
-        <div className="mx-auto w-full max-w-6xl px-6 py-16">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
-            <div>
-              <Annotation>auditing sites in early access</Annotation>
-              <h1 className="mt-4 font-sans text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:text-[4rem] lg:leading-[1.05]">
-                Your SEO tool doesn&apos;t check{" "}
-                <span className="sketch-underline text-accent-600">AI search</span>.
-                We do.
-              </h1>
-              <p className="mt-6 max-w-md text-lg leading-relaxed text-gray-500">
-                LLMScore audits your site the way ChatGPT, Perplexity and
-                Google AI see it — then opens the PRs that fix it.
-              </p>
-              <div className="mt-10">
-                <AuditWidget />
-              </div>
-            </div>
-            <div className="hidden lg:block">
-              <HeroSketch />
-            </div>
-          </div>
-        </div>
-        {/* scroll indicator */}
-        <div
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-gray-300"
-          aria-hidden="true"
-        >
-          <svg width="20" height="28" viewBox="0 0 20 28" fill="none">
-            <path
-              d="M10 4 C 9.5 11, 10.5 17, 10 23"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-            <path
-              d="M5 18 C 7 20.5, 8.5 22.5, 10 24 C 11.5 22.5, 13 20.5, 15 18"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </svg>
-        </div>
-      </section>
 
-      {/* ============================================================
-          1.5 WORKFLOW — schematic: URL → Audit → Score → Fixes → PR
-          ============================================================ */}
-      <section className="border-b border-gray-200">
-        <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-          <div className="flex flex-col items-center justify-center gap-4 font-mono text-sm sm:flex-row sm:gap-0">
-            {[
-              { label: "URL", sub: "your site" },
-              { label: "Audit", sub: "9 checks" },
-              { label: "Score", sub: "0\u2013100" },
-              { label: "Fixes", sub: "ranked" },
-              { label: "PR", sub: "on GitHub" },
-            ].map((step, i, arr) => (
-              <div key={step.label} className="flex items-center">
-                <div className="sketch-border-soft bg-white px-5 py-3 text-center">
-                  <p className="font-semibold text-gray-900">{step.label}</p>
-                  <p className="mt-0.5 text-xs text-gray-400">{step.sub}</p>
-                </div>
-                {i < arr.length - 1 && (
-                  <span
-                    className="mx-3 hidden text-accent-600 sm:inline"
-                    aria-hidden="true"
+            <FlowArrow />
+
+            {/* AUDIT */}
+            <div className="sketch-card w-[300px] p-6 text-left max-lg:w-full max-lg:max-w-[360px]">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">
+                LLMScore audit
+              </h3>
+              <div className="mt-3.5 grid grid-cols-3 gap-2">
+                {[
+                  ["🧱", "Schema"],
+                  ["📄", "llms.txt"],
+                  ["🕸", "Crawl"],
+                  ["✍️", "Clarity"],
+                  ["🔗", "Links"],
+                  ["⚡️", "Render"],
+                  ["🧭", "Nav"],
+                  ["🏷", "Meta"],
+                  ["📊", "Facts"],
+                ].map(([icon, name]) => (
+                  <div
+                    key={name}
+                    className="rounded-[9px] bg-gray-100 px-1 py-2 text-center text-[10px] font-semibold text-gray-600"
                   >
-                    →
-                  </span>
-                )}
+                    <span className="mb-0.5 block text-[15px]">{icon}</span>
+                    {name}
+                  </div>
+                ))}
               </div>
-            ))}
+              <div className="mt-3.5 flex items-center gap-2.5">
+                <b className="text-[26px] font-extrabold tracking-tight text-accent-600">
+                  72
+                </b>
+                <div className="h-[7px] flex-1 overflow-hidden rounded-full bg-paper-deep">
+                  <div className="h-full w-[72%] rounded-full bg-accent-600" />
+                </div>
+              </div>
+              <span className="mt-3 inline-block font-mono text-[11px] font-semibold tracking-[0.06em] text-signal">
+                9 CATEGORIES · RANKED FIXES
+              </span>
+            </div>
+
+            <FlowArrow />
+
+            {/* OUTPUT */}
+            <div className="sketch-card w-[300px] p-6 text-left max-lg:w-full max-lg:max-w-[360px]">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">
+                GitHub PR
+              </h3>
+              <div className="mt-3.5 overflow-hidden rounded-[10px] bg-[#1b1f1c] px-3.5 py-3 font-mono text-[11.5px] leading-[1.75] text-[#aab3a8]">
+                <span className="text-[#6b7568]">+++ b/public/llms.txt</span>
+                <br />
+                <span className="text-[#8fce84]">+ # yoursite.com</span>
+                <br />
+                <span className="text-[#8fce84]">+ &gt; What we do, for models</span>
+                <br />
+                <span className="text-[#8fce84]">+ /docs: product reference</span>
+              </div>
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent-50 px-3 py-1 text-xs font-semibold text-accent-600">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="#55724E" aria-hidden="true">
+                  <path d="M5 3a2 2 0 100 4 2 2 0 000-4zM3.5 8.9a3.5 3.5 0 113 0v2.2a3.5 3.5 0 11-3 0V8.9zM5 13a2 2 0 100 4 2 2 0 000-4z" />
+                </svg>
+                Ready to merge
+              </div>
+              <p className="mt-3 text-[12.5px] leading-relaxed text-gray-400">
+                Scoped, reviewable diffs — you stay in control of every merge.
+              </p>
+              <span className="mt-3 inline-block font-mono text-[11px] font-semibold tracking-[0.06em] text-signal">
+                OUTPUT
+              </span>
+            </div>
           </div>
+          <p className="mt-10 text-center text-sm text-gray-400">
+            <b className="font-semibold text-gray-600">
+              Auditing sites in early access
+            </b>{" "}
+            — join the first cohort.
+          </p>
         </div>
       </section>
 
