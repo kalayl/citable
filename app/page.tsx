@@ -76,14 +76,13 @@ export default function Home() {
             AI search readiness, automated
           </span>
           <h1 className="mx-auto mt-6 max-w-4xl font-sans text-[clamp(34px,5.5vw,60px)] font-extrabold leading-[1.08] tracking-tight text-gray-900">
-            Audit your site. Ship the fixes.
+            Make your site readable
             <br />
-            <span className="text-accent-600">Get cited.</span>
+            <span className="text-accent-600">to AI search.</span>
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-gray-500">
-            LLMScore runs a 9-category audit of how AI search engines read your
-            site, ranks the fixes by impact, and opens the GitHub PRs for you.
-            The only tool that ships fixes, not just scores.
+            LLMScore audits 9 ways AI search engines misread your site, ranks
+            the fixes by impact, and opens the GitHub PRs for you.
           </p>
           <div className="mx-auto mt-9 max-w-xl">
             <AuditWidget />
@@ -106,7 +105,7 @@ export default function Home() {
                 https://yoursite.com
               </div>
               <p className="mt-3 text-[12.5px] leading-relaxed text-gray-400">
-                Paste a URL. No install, no tracking script, no access needed.
+                Paste a URL. No install, no tracking script, no access needed. Get a score, ranked fixes, and ready-to-merge GitHub PRs.
               </p>
               <span className="mt-3 inline-block font-mono text-[11px] font-semibold tracking-[0.06em] text-signal">
                 INPUT
