@@ -8,6 +8,8 @@ import {
   deductCredit,
 } from "@/lib/credits";
 import { getOrCreateSessionId, attachSessionCookie } from "@/lib/session-anon";
+import { trackAuditStarted, trackAuditCompleted } from "@/lib/analytics";
+import { checkRateLimit, getClientIp } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -29,6 +31,31 @@ export async function POST(req: NextRequest) {
 
   const { sessionId, isNew } = getOrCreateSessionId(req);
   const billingEnabled = isStripeConfigured();
+
+  // Rate limiting (per IP; no-ops when Upstash is not configured).
+  const subscribed = billingEnabled
+    ? (await getRecord(sessionId)).subscription?.status === "active"
+    : false;
+  const rl = await checkRateLimit(getClientIp(req), subscribed);
+  if (!rl.success) {
+    const res = NextResponse.json(
+      {
+        error:
+          "Too many audits — you're limited to a few audits per minute. Please wait a moment and try again.",
+        code: "rate_limited",
+        retryAfter: rl.reset,
+      },
+      { status: 429 },
+    );
+    if (rl.reset) {
+      res.headers.set(
+        "Retry-After",
+        String(Math.max(1, Math.ceil((rl.reset - Date.now()) / 1000))),
+      );
+    }
+    if (isNew) attachSessionCookie(res, sessionId);
+    return res;
+  }
 
   // Gating (skipped entirely in early access when Stripe is not configured).
   let usedFreeAudit = false;
@@ -57,8 +84,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  await trackAuditStarted(norm.domain, "api", sessionId);
+
   try {
     const result = await runAudit(body.url);
+    await trackAuditCompleted(norm.domain, result.overallScore, sessionId);
     // Deduct only after a successful audit.
     if (usedFreeAudit) await markFreeAudit(sessionId, norm.domain);
     if (usedCredit) await deductCredit(sessionId, `Audit ${norm.domain}`);

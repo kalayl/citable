@@ -1,3 +1,6 @@
+import { eq } from "drizzle-orm";
+import { getDb } from "@/db";
+import { auditCache } from "@/db/schema";
 import { AuditResult, CategoryResult, CrawlContext, PageData } from "./types";
 import { fetchText, matchAll } from "./http";
 import { auditLlmsTxt } from "./auditors/llms-txt";
@@ -30,7 +33,7 @@ type CacheEntry = { result: AuditResult; at: number };
 const globalCache = globalThis as unknown as { __auditCache?: Map<string, CacheEntry> };
 const cache = (globalCache.__auditCache ||= new Map<string, CacheEntry>());
 
-export function getCachedAudit(domain: string): AuditResult | null {
+function getMemCachedAudit(domain: string): AuditResult | null {
   const entry = cache.get(domain.toLowerCase());
   if (!entry) return null;
   if (Date.now() - entry.at > CACHE_TTL_MS) {
@@ -38,6 +41,53 @@ export function getCachedAudit(domain: string): AuditResult | null {
     return null;
   }
   return entry.result;
+}
+
+/** Check in-memory then DB cache for a fresh audit result (1h TTL). */
+export async function getCachedAudit(domain: string): Promise<AuditResult | null> {
+  const key = domain.toLowerCase();
+  const mem = getMemCachedAudit(key);
+  if (mem) return mem;
+  const db = getDb();
+  if (!db) return null;
+  try {
+    const rows = await db
+      .select()
+      .from(auditCache)
+      .where(eq(auditCache.domain, key))
+      .limit(1);
+    const row = rows[0];
+    if (!row) return null;
+    if (row.expiresAt.getTime() < Date.now()) {
+      await db.delete(auditCache).where(eq(auditCache.domain, key));
+      return null;
+    }
+    const result = row.result as AuditResult;
+    cache.set(key, { result, at: row.createdAt.getTime() });
+    return result;
+  } catch (err) {
+    console.error("[audit] DB cache read failed:", err);
+    return null;
+  }
+}
+
+async function setDbCachedAudit(domain: string, result: AuditResult): Promise<void> {
+  const db = getDb();
+  if (!db) return;
+  try {
+    const values = {
+      domain: domain.toLowerCase(),
+      result,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + CACHE_TTL_MS),
+    };
+    await db
+      .insert(auditCache)
+      .values(values)
+      .onConflictDoUpdate({ target: auditCache.domain, set: values });
+  } catch (err) {
+    console.error("[audit] DB cache write failed:", err);
+  }
 }
 
 export function normalizeUrl(input: string): { baseUrl: string; domain: string } | null {
@@ -125,7 +175,7 @@ export async function runAudit(inputUrl: string): Promise<AuditResult> {
   const norm = normalizeUrl(inputUrl);
   if (!norm) throw new Error("Invalid URL");
 
-  const cached = getCachedAudit(norm.domain);
+  const cached = await getCachedAudit(norm.domain);
   if (cached) return cached;
 
   const work = (async (): Promise<AuditResult> => {
@@ -177,6 +227,7 @@ export async function runAudit(inputUrl: string): Promise<AuditResult> {
       pagesCrawled: (ctx.homepage ? 1 : 0) + ctx.samplePages.length,
     };
     cache.set(norm.domain, { result, at: Date.now() });
+    await setDbCachedAudit(norm.domain, result);
     return result;
   })();
 

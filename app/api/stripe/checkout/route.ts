@@ -8,6 +8,7 @@ import {
 } from "@/lib/stripe";
 import { getOrCreateSessionId, attachSessionCookie } from "@/lib/session-anon";
 import { auth } from "@/auth";
+import { trackCheckout } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
@@ -82,6 +83,8 @@ export async function POST(req: NextRequest) {
         ? { metadata: { llmscore_session: sessionId } }
         : undefined,
     });
+
+    await trackCheckout(product, session.user.email);
 
     const res = NextResponse.json({ url: checkout.url });
     if (isNew) attachSessionCookie(res, sessionId);

@@ -19,6 +19,7 @@ import { auth } from "@/auth";
 import { getOrCreateSessionId } from "@/lib/session-anon";
 import { getRecord } from "@/lib/credits";
 import { isStripeConfigured } from "@/lib/stripe";
+import { trackFixPR } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -142,7 +143,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // 1. Get the audit result (cache or re-run)
-    const audit = getCachedAudit(domain) || (await runAudit(domain));
+    const audit = (await getCachedAudit(domain)) || (await runAudit(domain));
 
     // 2. Find the base branch
     const base = await getDefaultBranch(token, owner, repoName);
@@ -209,6 +210,8 @@ export async function POST(req: NextRequest) {
       head: branchName,
       base: base.branch,
     });
+
+    await trackFixPR(domain, category, prUrl, session.user.email);
 
     return NextResponse.json({ prUrl, branch: branchName, path: targetPath });
   } catch (e) {

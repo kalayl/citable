@@ -1,16 +1,26 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import Resend from "next-auth/providers/resend";
 import Credentials from "next-auth/providers/credentials";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { authConfig } from "./auth.config";
+import { getDb, dbAvailable } from "./db";
+import {
+  users,
+  accounts,
+  authSessions,
+  verificationTokens,
+} from "./db/schema";
+import { verifyPin } from "./lib/pin";
 
 /**
  * NextAuth v5 full configuration (nodejs runtime).
  *
- * NOTE: The Resend (email magic link) provider requires a database adapter
- * to store verification tokens. Since we're serverless without a DB, we use
- * GitHub + Google OAuth + a credentials provider for email signin.
- * When a DB is added later, we can switch to the Resend provider proper.
+ * With Vercel Postgres configured, the Drizzle adapter enables the Resend
+ * email magic-link provider. A "pin" Credentials provider backs the
+ * email + 6-digit PIN flow (see app/api/auth/pin). Sessions stay JWT so
+ * the edge middleware config (auth.config.ts) keeps working.
  */
 
 const providers = [];
@@ -39,33 +49,63 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   );
 }
 
-// Credentials provider for email signin (early access - accepts any email)
+// Resend magic-link provider needs a database adapter for verification tokens.
+const resendKey = process.env.AUTH_RESEND_KEY || process.env.RESEND_API_KEY;
+if (dbAvailable() && resendKey) {
+  providers.push(
+    Resend({
+      apiKey: resendKey,
+      from: process.env.EMAIL_FROM || "LLMScore <noreply@llmscore.dev>",
+    })
+  );
+}
+
+// Email + PIN provider. The PIN is issued via POST /api/auth/pin (stored
+// hashed in Postgres) and verified here to create the session.
 providers.push(
   Credentials({
-    name: "Early Access",
+    id: "pin",
+    name: "Email PIN",
     credentials: {
       email: { label: "Email", type: "email" },
+      pin: { label: "PIN", type: "text" },
     },
     async authorize(credentials: Record<string, unknown> | undefined) {
-      const email = credentials?.email as string;
-      if (email && email.includes("@")) {
-        return {
-          id: email,
-          email: email,
-          name: email.split("@")[0],
-        } as any;
+      const email = (credentials?.email as string | undefined)?.toLowerCase().trim();
+      const pin = (credentials?.pin as string | undefined)?.trim();
+      if (!email || !email.includes("@") || !pin || !/^\d{6}$/.test(pin)) {
+        return null;
       }
-      return null;
+      const result = await verifyPin(email, pin);
+      if (result !== "ok") return null;
+      return {
+        id: email,
+        email,
+        name: email.split("@")[0],
+      } as any;
     },
   })
 );
 
+const db = getDb();
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  ...(db
+    ? {
+        adapter: DrizzleAdapter(db, {
+          usersTable: users,
+          accountsTable: accounts,
+          sessionsTable: authSessions,
+          verificationTokensTable: verificationTokens,
+        }),
+      }
+    : {}),
+  session: { strategy: "jwt" },
   providers: providers as any,
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, user }) {
       if (account?.provider === "github" && account.access_token) {
         token.githubAccessToken = account.access_token;
       }
@@ -74,6 +114,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       if (profile?.email) {
         token.email = profile.email;
+      }
+      if (user?.email) {
+        token.email = user.email;
       }
       return token;
     },

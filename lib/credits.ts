@@ -1,10 +1,11 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { randomUUID } from "crypto";
+import { eq, or } from "drizzle-orm";
+import { getDb } from "@/db";
+import { credits as creditsTable } from "@/db/schema";
 
 /**
- * Lightweight credits store backed by a JSON file at data/credits.json.
- * No DB dependency — fine for early access volumes.
+ * Credits store backed by Vercel Postgres (Drizzle).
+ * Falls back to an in-memory store when no DB is configured (local dev).
  */
 
 export const SESSION_COOKIE = "llmscore_session";
@@ -31,37 +32,16 @@ export interface SessionRecord {
   transactions: Transaction[];
 }
 
-interface Store {
-  sessions: Record<string, SessionRecord>;
-}
+// ---------------------------------------------------------------------------
+// In-memory fallback (dev without Postgres). Survives hot-reload.
+// ---------------------------------------------------------------------------
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "credits.json");
-
-// Serialize writes within this process to avoid clobbering.
-let writeChain: Promise<void> = Promise.resolve();
-
-async function readStore(): Promise<Store> {
-  try {
-    const raw = await fs.readFile(DATA_FILE, "utf8");
-    const parsed = JSON.parse(raw) as Store;
-    if (!parsed.sessions) parsed.sessions = {};
-    return parsed;
-  } catch {
-    return { sessions: {} };
-  }
-}
-
-async function writeStore(store: Store): Promise<void> {
-  const task = writeChain.then(async () => {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    const tmp = DATA_FILE + ".tmp";
-    await fs.writeFile(tmp, JSON.stringify(store, null, 2), "utf8");
-    await fs.rename(tmp, DATA_FILE);
-  });
-  writeChain = task.catch(() => {});
-  return task;
-}
+const globalStore = globalThis as unknown as {
+  __llmscoreCredits?: Map<string, SessionRecord>;
+};
+const memStore: Map<string, SessionRecord> =
+  globalStore.__llmscoreCredits || new Map();
+globalStore.__llmscoreCredits = memStore;
 
 function emptyRecord(): SessionRecord {
   return { credits: 0, freeAuditsUsed: [], subscription: null, transactions: [] };
@@ -71,20 +51,93 @@ export function newSessionId(): string {
   return randomUUID();
 }
 
+// ---------------------------------------------------------------------------
+// Row <-> record mapping
+// ---------------------------------------------------------------------------
+
+type CreditsRow = typeof creditsTable.$inferSelect;
+
+function rowToRecord(row: CreditsRow): SessionRecord {
+  const subscription: SubscriptionInfo | null =
+    row.subscriptionStatus && row.stripeCustomerId
+      ? {
+          stripeCustomerId: row.stripeCustomerId,
+          stripeSubscriptionId: row.stripeSubscriptionId || undefined,
+          status: row.subscriptionStatus as SubscriptionInfo["status"],
+        }
+      : null;
+  return {
+    credits: row.credits,
+    email: row.email || undefined,
+    freeAuditsUsed: row.freeAuditsUsed || [],
+    subscription,
+    stripeCustomerId: row.stripeCustomerId || undefined,
+    transactions: (row.transactions as Transaction[]) || [],
+  };
+}
+
+async function dbGet(sessionId: string): Promise<SessionRecord | null> {
+  const db = getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(creditsTable)
+    .where(eq(creditsTable.sessionId, sessionId))
+    .limit(1);
+  return rows[0] ? rowToRecord(rows[0]) : null;
+}
+
+async function dbUpsert(sessionId: string, rec: SessionRecord): Promise<void> {
+  const db = getDb();
+  if (!db) return;
+  const values = {
+    sessionId,
+    email: rec.email ?? null,
+    credits: rec.credits,
+    freeAuditsUsed: rec.freeAuditsUsed,
+    subscriptionStatus: rec.subscription?.status ?? null,
+    stripeCustomerId:
+      rec.stripeCustomerId ?? rec.subscription?.stripeCustomerId ?? null,
+    stripeSubscriptionId: rec.subscription?.stripeSubscriptionId ?? null,
+    transactions: rec.transactions,
+    updatedAt: new Date(),
+  };
+  await db
+    .insert(creditsTable)
+    .values(values)
+    .onConflictDoUpdate({ target: creditsTable.sessionId, set: values });
+}
+
+// ---------------------------------------------------------------------------
+// Public API (unchanged)
+// ---------------------------------------------------------------------------
+
 export async function getRecord(sessionId: string): Promise<SessionRecord> {
-  const store = await readStore();
-  return store.sessions[sessionId] || emptyRecord();
+  try {
+    const fromDb = await dbGet(sessionId);
+    if (fromDb) return fromDb;
+    if (getDb()) return emptyRecord();
+  } catch (err) {
+    console.error("[credits] DB read failed, using memory:", err);
+  }
+  return memStore.get(sessionId) || emptyRecord();
 }
 
 async function mutate(
   sessionId: string,
-  fn: (rec: SessionRecord) => void,
+  fn: (rec: SessionRecord) => void
 ): Promise<SessionRecord> {
-  const store = await readStore();
-  const rec = store.sessions[sessionId] || emptyRecord();
+  const rec = await getRecord(sessionId);
   fn(rec);
-  store.sessions[sessionId] = rec;
-  await writeStore(store);
+  try {
+    if (getDb()) {
+      await dbUpsert(sessionId, rec);
+      return rec;
+    }
+  } catch (err) {
+    console.error("[credits] DB write failed, using memory:", err);
+  }
+  memStore.set(sessionId, rec);
   return rec;
 }
 
@@ -118,7 +171,7 @@ export async function addCredits(
   sessionId: string,
   amount: number,
   type: Transaction["type"] = "purchase",
-  note?: string,
+  note?: string
 ): Promise<SessionRecord> {
   return mutate(sessionId, (rec) => {
     rec.credits += amount;
@@ -148,7 +201,7 @@ export async function markFreeAudit(sessionId: string, domain: string): Promise<
 
 export async function setSubscription(
   sessionId: string,
-  sub: SubscriptionInfo | null,
+  sub: SubscriptionInfo | null
 ): Promise<void> {
   await mutate(sessionId, (rec) => {
     rec.subscription = sub;
@@ -170,8 +223,20 @@ export async function setStripeCustomer(sessionId: string, customerId: string): 
 
 /** Find a session by Stripe customer id (for webhook events without metadata). */
 export async function findSessionByCustomer(customerId: string): Promise<string | null> {
-  const store = await readStore();
-  for (const [sid, rec] of Object.entries(store.sessions)) {
+  try {
+    const db = getDb();
+    if (db) {
+      const rows = await db
+        .select({ sessionId: creditsTable.sessionId })
+        .from(creditsTable)
+        .where(or(eq(creditsTable.stripeCustomerId, customerId)))
+        .limit(1);
+      return rows[0]?.sessionId ?? null;
+    }
+  } catch (err) {
+    console.error("[credits] DB lookup failed, using memory:", err);
+  }
+  for (const [sid, rec] of memStore) {
     if (
       rec.stripeCustomerId === customerId ||
       rec.subscription?.stripeCustomerId === customerId

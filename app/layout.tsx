@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, EB_Garamond, Caveat } from "next/font/google";
 import Providers from "@/components/Providers";
+import PostHogProvider from "@/components/PostHogProvider";
 import "./globals.css";
 
 const sans = Inter({
@@ -111,7 +112,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <PostHogProvider>
+          <Providers>{children}</Providers>
+        </PostHogProvider>
       </body>
     </html>
   );

@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ domain: string }> }
 ) {
   const { domain } = await params;
-  const result = getCachedAudit(decodeURIComponent(domain));
+  const result = await getCachedAudit(decodeURIComponent(domain));
   if (!result) {
     return NextResponse.json(
       { error: "No recent audit for this domain. Run POST /api/audit first." },
