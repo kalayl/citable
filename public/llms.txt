@@ -7,3 +7,15 @@ LLMScore is built for B2B SaaS companies, content-heavy sites and marketing team
 ## Pages
 
 - [Home](https://llmscore.io/): What LLMScore audits, how it works, and a sample report. Get your AI search readiness score.
+
+## What LLMScore checks
+
+- [What is llms.txt?](https://llmscore.io/checks/llms-txt): What llms.txt is, why it matters for AI search, and how LLMScore validates it.
+- [llms-full.txt explained](https://llmscore.io/checks/llms-full-txt): The complete page index for AI crawlers and why coverage beats curation.
+- [JSON-LD for AI extraction](https://llmscore.io/checks/json-ld): Will an LLM get a clean answer from your structured data?
+- [AI crawler robots config](https://llmscore.io/checks/robots): Are GPTBot, ClaudeBot and PerplexityBot allowed to read your site?
+- [Content extractability](https://llmscore.io/checks/extractability): Question-based headings, TL;DR blocks and answer-shaped content that wins citations.
+- [Sitemap completeness](https://llmscore.io/checks/sitemap): Can AI crawlers find all your pages? Missing pages and orphans explained.
+- [Canonical coverage](https://llmscore.io/checks/canonicals): How duplicate URL variants split your citations, and how to consolidate them.
+- [OG / Twitter cards](https://llmscore.io/checks/og-cards): The preview contract AI citation cards are built from.
+- [Internal linking](https://llmscore.io/checks/internal-links): Why key pages must be reachable within two clicks, and how to fix orphans.

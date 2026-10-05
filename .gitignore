@@ -8,3 +8,7 @@ next-env.d.ts
 .vercel
 data/credits.json
 data/sessions.json
+
+# playwright
+/test-results/
+/playwright-report/

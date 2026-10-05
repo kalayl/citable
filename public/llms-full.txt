@@ -5,3 +5,12 @@
 - [Home](https://llmscore.io): AI search readiness audit tool. Point it at a URL and get a 0-100 score with ranked fixes across llms.txt, JSON-LD, AI-crawler robots, content extractability, sitemaps, canonicals, and internal linking.
 - [Sign in](https://llmscore.io/signin): Sign in with GitHub, Google, or email to run audits and open PR fixes.
 - [Audit report](https://llmscore.io/report/llmscore.io): Live audit report for llmscore.io itself.
+- [What is llms.txt?](https://llmscore.io/checks/llms-txt): Explainer for the llms.txt check: what the file is, why it matters for AI search, good vs bad examples, and how to fix failures.
+- [llms-full.txt explained](https://llmscore.io/checks/llms-full-txt): Explainer for the llms-full.txt check: the complete page index for AI crawlers, how it differs from llms.txt, and how to generate it.
+- [JSON-LD for AI extraction](https://llmscore.io/checks/json-ld): Explainer for the JSON-LD check: which schema types matter for AI search, hollow vs complete schema, and schema-content alignment.
+- [AI crawler robots config](https://llmscore.io/checks/robots): Explainer for the robots check: which AI crawlers matter, accidental blocking, and intentional scoped access.
+- [Content extractability](https://llmscore.io/checks/extractability): Explainer for the extractability check: question-based H2s, TL;DR blocks, and answer-first structure.
+- [Sitemap completeness](https://llmscore.io/checks/sitemap): Explainer for the sitemap check: missing pages, orphan URLs, lastmod signals, and build-time generation.
+- [Canonical coverage](https://llmscore.io/checks/canonicals): Explainer for the canonicals check: duplicate URL variants, UTM risk, and self-referencing canonicals.
+- [OG / Twitter cards](https://llmscore.io/checks/og-cards): Explainer for the OG cards check: per-page og:title, og:description, og:image and twitter:card coverage.
+- [Internal linking](https://llmscore.io/checks/internal-links): Explainer for the internal links check: orphan pages, click depth, anchor text, and crawlable link structure.

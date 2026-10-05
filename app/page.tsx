@@ -1,3 +1,4 @@
+import Link from "next/link";
 import AuditWidget from "@/components/AuditWidget";
 import AccountMenu from "@/components/AccountMenu";
 import HeroSketch from "@/components/HeroSketch";
@@ -226,6 +227,35 @@ User-agent: PerplexityBot
               <li><span className="text-gray-800">OG / Twitter cards</span> — present and consistent everywhere</li>
               <li><span className="text-gray-800">Internal linking</span> — key pages within 2 clicks</li>
               <li><span className="text-gray-800">Schema-content alignment</span> — structured data matches the page</li>
+            </ul>
+          </div>
+
+          {/* learn more about each check */}
+          <div className="mt-16 border-t border-gray-200 pt-10">
+            <p className="font-hand text-lg text-accent-600">
+              learn more about each check:
+            </p>
+            <ul className="mt-5 grid gap-x-12 gap-y-3 text-[15px] sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { href: "/checks/llms-txt", label: "What is llms.txt?" },
+                { href: "/checks/llms-full-txt", label: "llms-full.txt explained" },
+                { href: "/checks/json-ld", label: "JSON-LD for AI extraction" },
+                { href: "/checks/robots", label: "AI crawler robots config" },
+                { href: "/checks/extractability", label: "Content extractability" },
+                { href: "/checks/sitemap", label: "Sitemap completeness" },
+                { href: "/checks/canonicals", label: "Canonical coverage" },
+                { href: "/checks/og-cards", label: "OG / Twitter cards" },
+                { href: "/checks/internal-links", label: "Internal linking" },
+              ].map((c) => (
+                <li key={c.href}>
+                  <Link
+                    href={c.href}
+                    className="text-gray-600 underline decoration-gray-300 underline-offset-4 transition hover:text-accent-600"
+                  >
+                    {c.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
