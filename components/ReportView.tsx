@@ -81,7 +81,7 @@ function FixSection({ audit, github }: { audit: Audit; github: { connected: bool
   const fixableCategories = audit.categories.filter(
     (c) =>
       FIXABLE_KEYS.includes(c.key) &&
-      c.score < 80 &&
+      c.score < 100 &&
       c.issues.some((i) => i.severity !== "pass"),
   );
 
