@@ -51,7 +51,7 @@ export default function Home() {
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
             <div className="flex items-center gap-2.5">
               <LogoMark size={20} />
-              <span className="font-serif text-base font-semibold text-gray-900">
+              <span className="font-sans text-base font-semibold text-gray-900">
                 LLMScore
               </span>
             </div>
@@ -61,14 +61,15 @@ export default function Home() {
         <div className="mx-auto w-full max-w-6xl px-6 py-16">
           <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
-              <Annotation>a survey of your site, as the answer engines see it</Annotation>
-              <h1 className="mt-4 font-serif text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl lg:text-[4.25rem] lg:leading-[1.05]">
-                What&apos;s your{" "}
-                <span className="sketch-underline text-accent-600">LLM score</span>?
+              <Annotation>auditing sites in early access</Annotation>
+              <h1 className="mt-4 font-sans text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:text-[4rem] lg:leading-[1.05]">
+                Your SEO tool doesn&apos;t check{" "}
+                <span className="sketch-underline text-accent-600">AI search</span>.
+                We do.
               </h1>
               <p className="mt-6 max-w-md text-lg leading-relaxed text-gray-500">
-                AI search engines are answering your customers&apos; questions.
-                Are they citing your site?
+                LLMScore audits your site the way ChatGPT, Perplexity and
+                Google AI see it — then opens the PRs that fix it.
               </p>
               <div className="mt-10">
                 <AuditWidget />
@@ -103,11 +104,43 @@ export default function Home() {
       </section>
 
       {/* ============================================================
+          1.5 WORKFLOW — schematic: URL → Audit → Score → Fixes → PR
+          ============================================================ */}
+      <section className="border-b border-gray-200">
+        <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+          <div className="flex flex-col items-center justify-center gap-4 font-mono text-sm sm:flex-row sm:gap-0">
+            {[
+              { label: "URL", sub: "your site" },
+              { label: "Audit", sub: "9 checks" },
+              { label: "Score", sub: "0\u2013100" },
+              { label: "Fixes", sub: "ranked" },
+              { label: "PR", sub: "on GitHub" },
+            ].map((step, i, arr) => (
+              <div key={step.label} className="flex items-center">
+                <div className="sketch-border-soft bg-white px-5 py-3 text-center">
+                  <p className="font-semibold text-gray-900">{step.label}</p>
+                  <p className="mt-0.5 text-xs text-gray-400">{step.sub}</p>
+                </div>
+                {i < arr.length - 1 && (
+                  <span
+                    className="mx-3 hidden text-accent-600 sm:inline"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
           2. THE SHIFT — one statistic. Nothing else.
           ============================================================ */}
       <section className="border-b border-gray-200 bg-paper-deep/60">
         <div className="mx-auto max-w-3xl px-6 py-28 text-center sm:py-36">
-          <p className="font-serif text-[6rem] font-semibold leading-none tracking-tight text-gray-900 sm:text-[8rem]">
+          <p className="font-sans text-[6rem] font-bold leading-none tracking-tight text-gray-900 sm:text-[8rem]">
             47<span className="text-accent-600">%</span>
           </p>
           <p className="mx-auto mt-6 max-w-xl text-lg text-gray-500">
@@ -134,7 +167,7 @@ export default function Home() {
       <section id="checks" className="border-b border-gray-200">
         <div className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
           <Annotation>nine checks · three matter most</Annotation>
-          <h2 className="mt-3 max-w-2xl font-serif text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+          <h2 className="mt-3 max-w-2xl font-sans text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             The layer traditional SEO tools don&apos;t see.
           </h2>
 
@@ -266,7 +299,7 @@ User-agent: PerplexityBot
           ============================================================ */}
       <section id="how" className="border-b border-gray-200 bg-paper-deep/60">
         <div className="mx-auto max-w-6xl px-6 py-24 sm:py-28">
-          <h2 className="font-serif text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+          <h2 className="font-sans text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             How it works
           </h2>
           <div className="relative mt-14 grid gap-12 md:grid-cols-3 md:gap-8">
@@ -344,7 +377,7 @@ User-agent: PerplexityBot
       <section id="report" className="border-b border-gray-200">
         <div className="mx-auto max-w-6xl px-6 py-24 sm:py-28">
           <Annotation>a real report, not a mockup of one</Annotation>
-          <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+          <h2 className="mt-3 font-sans text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             Every issue explained. Every fix ranked by impact.
           </h2>
 
@@ -371,12 +404,12 @@ User-agent: PerplexityBot
                     />
                     <circle
                       cx="60" cy="60" r="52" fill="none"
-                      stroke="#8B4513" strokeWidth="4" strokeLinecap="round"
+                      stroke="#55724E" strokeWidth="4" strokeLinecap="round"
                       strokeDasharray={`${0.64 * 2 * Math.PI * 52} ${2 * Math.PI * 52}`}
                       transform="rotate(-90 60 60)"
                     />
                     <text x="60" y="58" textAnchor="middle" className="fill-gray-900"
-                      fontSize="30" fontWeight="600" fontFamily="var(--font-serif)">
+                      fontSize="30" fontWeight="600" fontFamily="var(--font-sans)">
                       64
                     </text>
                     <text x="60" y="78" textAnchor="middle" className="fill-gray-400"
@@ -458,7 +491,7 @@ User-agent: PerplexityBot
           <div className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <Annotation>from audit to merged, automatically</Annotation>
-              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+              <h2 className="mt-3 font-sans text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                 Connect your repo. LLMScore opens PRs with the fixes.
               </h2>
               <p className="mt-5 max-w-md leading-relaxed text-gray-500">
@@ -520,7 +553,7 @@ User-agent: PerplexityBot
           ============================================================ */}
       <section className="border-b border-gray-200">
         <div className="mx-auto max-w-3xl px-6 py-20 text-center sm:py-24">
-          <p className="font-serif text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
+          <p className="font-sans text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
             Free audit. $29/mo for GitHub PR fixes.
           </p>
           <p className="mt-3 font-hand text-xl text-accent-600">

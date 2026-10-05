@@ -25,13 +25,13 @@ const config: Config = {
           800: "#262530",
           900: "#1A1A2E",
         },
-        // Sepia / faded red accent — the cartographer's second ink
+        // Green accent — the challenger's ink
         accent: {
-          50: "#F3E7DA",
-          100: "#EBD8C3",
-          500: "#A0522D",
-          600: "#8B4513",
-          700: "#6E3610",
+          50: "#E5EBDE",
+          100: "#D7E1CC",
+          500: "#63825B",
+          600: "#55724E",
+          700: "#475F41",
         },
         // Ink-wash verdict colours (muted, watercolour)
         red: {

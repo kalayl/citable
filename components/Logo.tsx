@@ -25,7 +25,7 @@ export function LogoMark({ size = 22 }: { size?: number }) {
       />
       <path
         d="M12.1 17.2 C 12 14.4, 12.2 11.6, 12 9.1"
-        stroke="#8B4513"
+        stroke="#55724E"
         strokeWidth="2"
         strokeLinecap="round"
       />
@@ -38,7 +38,7 @@ export function LogoMark({ size = 22 }: { size?: number }) {
       {/* Annotation tick above the tallest bar */}
       <path
         d="M10.6 6.9 C 11.2 6.4, 12.6 6.2, 13.5 6.6"
-        stroke="#8B4513"
+        stroke="#55724E"
         strokeWidth="1.2"
         strokeLinecap="round"
       />

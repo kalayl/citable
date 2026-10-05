@@ -97,7 +97,7 @@ export default function AuditWidget() {
           disabled={state === "loading"}
           className="sketch-btn bg-accent-600 px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60"
         >
-          {state === "loading" ? "Auditing…" : "Audit my site"}
+          {state === "loading" ? "Auditing…" : "Get your score"}
         </button>
       </form>
       <p className="mt-2 font-hand text-sm text-gray-500">

@@ -7,7 +7,7 @@
  */
 
 const ink = "#1A1A2E";
-const sepia = "#8B4513";
+const sepia = "#55724E";
 const redWash = "#9B3B2E";
 const amberWash = "#B8860B";
 const greenWash = "#55724E";

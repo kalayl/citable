@@ -27,7 +27,7 @@ body::before {
 }
 
 ::selection {
-  background: #ead8c3;
+  background: #d7e1cc;
   color: #1a1a2e;
 }
 
@@ -53,15 +53,15 @@ h3 {
 .sketch-card {
   border: 1.5px solid rgba(26, 26, 46, 0.6);
   border-radius: 16px 4px 18px 5px / 5px 16px 4px 18px;
-  background: #fbf8f1;
+  background: #fdfbf7;
   box-shadow: 2px 3px 0 rgba(26, 26, 46, 0.12);
 }
 
 .sketch-card-accent {
-  border: 1.5px solid rgba(139, 69, 19, 0.65);
+  border: 1.5px solid rgba(85, 114, 78, 0.65);
   border-radius: 4px 18px 5px 16px / 18px 5px 16px 4px;
-  background: #fbf8f1;
-  box-shadow: 2px 3px 0 rgba(139, 69, 19, 0.15);
+  background: #fdfbf7;
+  box-shadow: 2px 3px 0 rgba(85, 114, 78, 0.15);
 }
 
 .sketch-pill {
@@ -84,7 +84,7 @@ h3 {
 }
 
 .sketch-underline {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' viewBox='0 0 120 8'%3E%3Cpath d='M2 5.5 C 25 2.5, 48 6.5, 70 4 S 108 3, 118 5' fill='none' stroke='%238B4513' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' viewBox='0 0 120 8'%3E%3Cpath d='M2 5.5 C 25 2.5, 48 6.5, 70 4 S 108 3, 118 5' fill='none' stroke='%2355724E' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: 0 100%;
   background-size: 100% 0.45em;
