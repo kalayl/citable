@@ -2,6 +2,18 @@ import { MetadataRoute } from "next"
 
 const SITE_URL = "https://llmscore.io"
 
+const CHECK_SLUGS = [
+  "llms-txt",
+  "llms-full-txt",
+  "json-ld",
+  "robots",
+  "extractability",
+  "sitemap",
+  "canonicals",
+  "og-cards",
+  "internal-links",
+]
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
   return [
@@ -17,5 +29,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.5,
     },
+    ...CHECK_SLUGS.map((slug) => ({
+      url: `${SITE_URL}/checks/${slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
   ]
 }

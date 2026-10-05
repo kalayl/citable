@@ -5,8 +5,9 @@ import { signIn } from "next-auth/react";
 
 export default function SignInForm() {
   const [email, setEmail] = useState("");
+  const [pin, setPin] = useState("");
+  const [step, setStep] = useState<"email" | "pin">("email");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
 
   async function sendCode(e: React.FormEvent) {
@@ -14,17 +15,17 @@ export default function SignInForm() {
     setError("");
     setLoading(true);
     try {
-      const res = await signIn("resend", {
-        email,
-        redirect: false,
-        callbackUrl: "/",
+      const res = await fetch("/api/auth/pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
-      if (!res || res.error) {
-        setError(res?.error || "Something went wrong");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "Something went wrong");
         return;
       }
-      // Auth.js Resend provider sends a magic link to the email.
-      setSent(true);
+      setStep("pin");
     } catch {
       setError("Network error. Try again.");
     } finally {
@@ -32,28 +33,75 @@ export default function SignInForm() {
     }
   }
 
-  if (sent) {
+  async function verifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await signIn("pin", {
+        email,
+        pin,
+        redirect: false,
+      });
+      if (!res || res.error) {
+        setError("Incorrect or expired code. Try again.");
+        return;
+      }
+      window.location.href = "/";
+    } catch {
+      setError("Network error. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (step === "pin") {
     return (
-      <div className="text-center">
-        <p className="font-hand text-2xl text-accent-600">check your inbox</p>
-        <p className="mt-2 text-sm text-gray-600">
-          We sent a sign-in link to{" "}
+      <form onSubmit={verifyCode}>
+        <p className="text-center font-hand text-2xl text-accent-600">check your inbox</p>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          We sent a 6-digit code to{" "}
           <span className="font-medium text-gray-900">{email}</span>
         </p>
-        <p className="mt-1 text-xs text-gray-400">
-          Click the link in the email to sign in. It expires in 24 hours.
+        <label htmlFor="signin-pin" className="mt-4 block text-sm font-medium text-gray-700">
+          Enter code
+        </label>
+        <input
+          id="signin-pin"
+          type="text"
+          inputMode="numeric"
+          pattern="\d{6}"
+          maxLength={6}
+          required
+          autoFocus
+          placeholder="123456"
+          value={pin}
+          onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+          className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg tracking-[0.5em] text-gray-900 shadow-sm placeholder:tracking-normal placeholder:text-gray-400 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
+        />
+        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        <button
+          type="submit"
+          disabled={loading || pin.length !== 6}
+          className="mt-4 w-full rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-gray-700 disabled:opacity-50"
+        >
+          {loading ? "Verifying…" : "Verify & sign in"}
+        </button>
+        <p className="mt-2 text-center text-xs text-gray-400">
+          Code expires in 10 minutes.
         </p>
         <button
           type="button"
           onClick={() => {
-            setSent(false);
+            setStep("email");
+            setPin("");
             setError("");
           }}
-          className="mt-4 text-sm text-gray-500 underline-offset-2 hover:underline"
+          className="mt-3 w-full text-sm text-gray-500 underline-offset-2 hover:underline"
         >
           Use a different email
         </button>
-      </div>
+      </form>
     );
   }
 
@@ -78,7 +126,7 @@ export default function SignInForm() {
         disabled={loading || !email}
         className="mt-4 w-full rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-gray-700 disabled:opacity-50"
       >
-        {loading ? "Sending…" : "Send sign-in link"}
+        {loading ? "Sending…" : "Send sign-in code"}
       </button>
     </form>
   );
