@@ -7,6 +7,7 @@ type Issue = {
   severity: "critical" | "warning" | "pass";
   message: string;
   fix: string;
+  locked?: boolean;
 };
 
 type CategoryResult = {
@@ -23,6 +24,7 @@ type AuditResult = {
   categories: CategoryResult[];
   topFixes: Issue[];
   crawledAt: string;
+  locked?: boolean;
 };
 
 function barColor(score: number) {
@@ -184,6 +186,44 @@ export default function AuditWidget() {
               </ol>
             </div>
           )}
+
+          {result.locked && (() => {
+            const lockedIssues = result.categories.flatMap((c) =>
+              c.issues.filter((i) => i.locked)
+            );
+            if (lockedIssues.length === 0) return null;
+            return (
+              <div className="sketch-border-soft relative mt-5 overflow-hidden bg-gray-50 p-4">
+                <p className="font-hand text-base text-gray-500">
+                  {lockedIssues.length} more issue
+                  {lockedIssues.length > 1 ? "s" : ""} + fix instructions in the
+                  full report
+                </p>
+                <ul
+                  className="mt-3 space-y-2 text-xs text-gray-500 blur-[3px] select-none"
+                  aria-hidden
+                >
+                  {lockedIssues.slice(0, 4).map((issue, i) => (
+                    <li key={i}>• {issue.message}</li>
+                  ))}
+                </ul>
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  <a
+                    href="#pricing"
+                    className="sketch-btn flex-1 bg-accent-600 px-4 py-2 text-center text-xs font-medium text-white"
+                  >
+                    Unlock full report — $9 one-time
+                  </a>
+                  <a
+                    href="#pricing"
+                    className="sketch-btn flex-1 border border-gray-300 bg-white px-4 py-2 text-center text-xs font-medium text-gray-700"
+                  >
+                    Upgrade to Pro — $29/mo
+                  </a>
+                </div>
+              </div>
+            );
+          })()}
 
           <GitHubConnect domain={result.domain} categories={result.categories} />
 

@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { eq, or } from "drizzle-orm";
 import { getDb } from "@/db";
 import { credits as creditsTable } from "@/db/schema";
+import { PLAN_LIMITS, type Plan } from "@/lib/stripe";
 
 /**
  * Credits store backed by Vercel Postgres (Drizzle).
@@ -12,7 +13,14 @@ export const SESSION_COOKIE = "llmscore_session";
 
 export interface Transaction {
   at: string; // ISO timestamp
-  type: "purchase" | "audit" | "subscription_grant" | "free_audit";
+  type:
+    | "purchase"
+    | "audit"
+    | "subscription_grant"
+    | "free_audit"
+    | "plan_set"
+    | "pr_fix"
+    | "report_unlock";
   credits: number; // positive = added, negative = deducted
   note?: string;
 }
@@ -182,6 +190,114 @@ export async function addCredits(
 export async function hasFreeAudit(sessionId: string, domain: string): Promise<boolean> {
   const rec = await getRecord(sessionId);
   return rec.freeAuditsUsed.includes(domain.toLowerCase());
+}
+
+// ---------------------------------------------------------------------------
+// Plan / tier gating
+// ---------------------------------------------------------------------------
+
+const PLAN_NAMES: Plan[] = ["free", "pro", "agency", "enterprise", "founding_pro"];
+
+/**
+ * Resolve the plan for a session.
+ * Plan is recorded via a `plan_set` transaction (written by the Stripe
+ * webhook). An active subscription without an explicit plan defaults to
+ * "pro" (legacy records). No subscription = free.
+ */
+export async function getPlan(sessionId: string): Promise<Plan> {
+  const rec = await getRecord(sessionId);
+  if (rec.subscription?.status !== "active") return "free";
+  for (let i = rec.transactions.length - 1; i >= 0; i--) {
+    const t = rec.transactions[i];
+    if (t.type === "plan_set" && t.note && PLAN_NAMES.includes(t.note as Plan)) {
+      return t.note as Plan;
+    }
+  }
+  return "pro";
+}
+
+/** Record the plan for a session (called from the Stripe webhook). */
+export async function setPlan(sessionId: string, plan: Plan): Promise<void> {
+  await mutate(sessionId, (rec) => {
+    rec.transactions.push({
+      at: new Date().toISOString(),
+      type: "plan_set",
+      credits: 0,
+      note: plan,
+    });
+  });
+}
+
+/** Record a one-time $9 full-report unlock (optionally scoped to a domain). */
+export async function unlockReport(sessionId: string, domain?: string): Promise<void> {
+  await mutate(sessionId, (rec) => {
+    rec.transactions.push({
+      at: new Date().toISOString(),
+      type: "report_unlock",
+      credits: 0,
+      note: domain?.toLowerCase(),
+    });
+  });
+}
+
+/**
+ * Full report access: any paid plan, or a one-time report unlock.
+ * If `domain` is given, a domain-scoped unlock must match (unscoped unlocks
+ * count for any domain).
+ */
+export async function canAccessFullReport(
+  sessionId: string,
+  domain?: string
+): Promise<boolean> {
+  const plan = await getPlan(sessionId);
+  if (PLAN_LIMITS[plan].fullReport) return true;
+  const rec = await getRecord(sessionId);
+  const d = domain?.toLowerCase();
+  return rec.transactions.some(
+    (t) => t.type === "report_unlock" && (!t.note || !d || t.note === d)
+  );
+}
+
+/** PR fixes created in the current calendar month (UTC). */
+export async function getPrFixCountThisMonth(sessionId: string): Promise<number> {
+  const rec = await getRecord(sessionId);
+  const now = new Date();
+  const prefix = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  return rec.transactions.filter(
+    (t) => t.type === "pr_fix" && t.at.startsWith(prefix)
+  ).length;
+}
+
+/**
+ * Can this session create `count` more PR fixes this month?
+ * Returns the decision plus context for upgrade prompts.
+ */
+export async function canCreatePR(
+  sessionId: string,
+  count = 1
+): Promise<{ allowed: boolean; plan: Plan; used: number; limit: number }> {
+  const plan = await getPlan(sessionId);
+  const limit = PLAN_LIMITS[plan].prFixesPerMonth;
+  const used = await getPrFixCountThisMonth(sessionId);
+  return { allowed: used + count <= limit, plan, used, limit };
+}
+
+/** Record a successful PR fix against this month's quota. */
+export async function recordPrFix(sessionId: string, note?: string): Promise<void> {
+  await mutate(sessionId, (rec) => {
+    rec.transactions.push({
+      at: new Date().toISOString(),
+      type: "pr_fix",
+      credits: 0,
+      note,
+    });
+  });
+}
+
+/** Max tracked sites for this session's plan. */
+export async function getTrackedSitesLimit(sessionId: string): Promise<number> {
+  const plan = await getPlan(sessionId);
+  return PLAN_LIMITS[plan].trackedSites;
 }
 
 export async function markFreeAudit(sessionId: string, domain: string): Promise<void> {

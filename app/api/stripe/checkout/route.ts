@@ -3,7 +3,7 @@ import {
   getStripe,
   isStripeConfigured,
   getPriceId,
-  getPackById,
+  getProductById,
   type CheckoutProduct,
 } from "@/lib/stripe";
 import { getOrCreateSessionId, attachSessionCookie } from "@/lib/session-anon";
@@ -13,10 +13,12 @@ import { trackCheckout } from "@/lib/analytics";
 export const runtime = "nodejs";
 
 const VALID_PRODUCTS: CheckoutProduct[] = [
-  "credits_10",
-  "credits_50",
-  "credits_200",
-  "subscription",
+  "one_time_report",
+  "pro",
+  "pro_annual",
+  "agency",
+  "agency_annual",
+  "founding_pro",
 ];
 
 export async function POST(req: NextRequest) {
@@ -64,8 +66,8 @@ export async function POST(req: NextRequest) {
 
   const { sessionId, isNew } = getOrCreateSessionId(req);
   const origin = req.nextUrl.origin;
-  const isSubscription = product === "subscription";
-  const pack = isSubscription ? null : getPackById(product);
+  const productDef = getProductById(product)!;
+  const isSubscription = productDef.mode === "subscription";
 
   try {
     const stripe = getStripe();
@@ -77,7 +79,7 @@ export async function POST(req: NextRequest) {
       metadata: {
         llmscore_session: sessionId,
         product,
-        credits: pack ? String(pack.credits) : "0",
+        plan: productDef.plan ?? "",
       },
       subscription_data: isSubscription
         ? { metadata: { llmscore_session: sessionId } }

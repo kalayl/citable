@@ -1,18 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runAudit, normalizeUrl } from "@/lib/audit";
 import { isStripeConfigured, PRICING_SUMMARY } from "@/lib/stripe";
-import {
-  getRecord,
-  hasFreeAudit,
-  markFreeAudit,
-  deductCredit,
-} from "@/lib/credits";
+import { getRecord, canAccessFullReport } from "@/lib/credits";
 import { getOrCreateSessionId, attachSessionCookie } from "@/lib/session-anon";
 import { trackAuditStarted, trackAuditCompleted } from "@/lib/analytics";
 import { checkRateLimit, getClientIp } from "@/lib/ratelimit";
+import type { AuditResult } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+/**
+ * Audits are ALWAYS free — no signup, no limit (beyond rate limiting).
+ * Free tier gets the score + top 3 fixes; all other issues are returned
+ * with `locked: true` and redacted fix instructions. The full report
+ * requires the $9 one-time unlock or a Pro+ subscription.
+ */
+
+function gateResult(result: AuditResult): AuditResult & { locked: boolean } {
+  const top = result.topFixes.slice(0, 3);
+  const isTop = (message: string) => top.some((t) => t.message === message);
+
+  const categories = result.categories.map((c) => ({
+    ...c,
+    issues: c.issues.map((issue) => {
+      if (issue.severity === "pass" || isTop(issue.message)) return issue;
+      return { ...issue, fix: "", locked: true };
+    }),
+  }));
+
+  return { ...result, categories, topFixes: top, locked: true };
+}
 
 export async function POST(req: NextRequest) {
   let body: { url?: string };
@@ -57,42 +75,22 @@ export async function POST(req: NextRequest) {
     return res;
   }
 
-  // Gating (skipped entirely in early access when Stripe is not configured).
-  let usedFreeAudit = false;
-  let usedCredit = false;
-  if (billingEnabled) {
-    const record = await getRecord(sessionId);
-    const subscribed = record.subscription?.status === "active";
-    if (!subscribed) {
-      const freeUsed = await hasFreeAudit(sessionId, norm.domain);
-      if (!freeUsed) {
-        usedFreeAudit = true;
-      } else if (record.credits > 0) {
-        usedCredit = true;
-      } else {
-        const res = NextResponse.json(
-          {
-            error: "Free audit used for this domain",
-            code: "payment_required",
-            pricing: PRICING_SUMMARY,
-          },
-          { status: 402 },
-        );
-        if (isNew) attachSessionCookie(res, sessionId);
-        return res;
-      }
-    }
-  }
-
   await trackAuditStarted(norm.domain, "api", sessionId);
 
   try {
     const result = await runAudit(body.url);
     await trackAuditCompleted(norm.domain, result.overallScore, sessionId);
-    // Deduct only after a successful audit.
-    if (usedFreeAudit) await markFreeAudit(sessionId, norm.domain);
-    if (usedCredit) await deductCredit(sessionId, `Audit ${norm.domain}`);
-    const res = NextResponse.json(result);
+
+    // Early access (Stripe not configured): everything is free, no gating.
+    let payload: AuditResult & { locked?: boolean; pricing?: unknown } = result;
+    if (billingEnabled) {
+      const fullAccess = await canAccessFullReport(sessionId, norm.domain);
+      if (!fullAccess) {
+        payload = { ...gateResult(result), pricing: PRICING_SUMMARY };
+      }
+    }
+
+    const res = NextResponse.json(payload);
     if (isNew) attachSessionCookie(res, sessionId);
     return res;
   } catch (e) {

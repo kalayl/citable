@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { getStripe, isStripeConfigured, SUBSCRIPTION } from "@/lib/stripe";
+import { getStripe, isStripeConfigured, type Plan } from "@/lib/stripe";
 import {
-  addCredits,
+  setPlan,
+  unlockReport,
   setSubscription,
   setStripeCustomer,
   setEmail,
@@ -70,26 +71,14 @@ export async function POST(req: NextRequest) {
                 : session.subscription?.id,
             status: "active",
           });
-          await addCredits(
-            sessionId,
-            SUBSCRIPTION.monthlyCredits,
-            "subscription_grant",
-            "Subscription started",
-          );
-          log("subscription_activated", { sessionId, customerId });
+          const plan = (session.metadata?.plan || "pro") as Plan;
+          await setPlan(sessionId, plan);
+          log("subscription_activated", { sessionId, customerId, plan });
+        } else if (session.metadata?.product === "one_time_report") {
+          await unlockReport(sessionId);
+          log("report_unlocked", { sessionId, checkout: session.id });
         } else {
-          const credits = parseInt(session.metadata?.credits || "0", 10);
-          if (credits > 0) {
-            await addCredits(
-              sessionId,
-              credits,
-              "purchase",
-              `Checkout ${session.id}`,
-            );
-            log("credits_added", { sessionId, credits });
-          } else {
-            log("checkout_no_credits", { checkout: session.id });
-          }
+          log("checkout_unknown_product", { checkout: session.id });
         }
         break;
       }
@@ -109,12 +98,6 @@ export async function POST(req: NextRequest) {
           log("invoice_session_not_found", { customerId });
           break;
         }
-        await addCredits(
-          sessionId,
-          SUBSCRIPTION.monthlyCredits,
-          "subscription_grant",
-          `Renewal invoice ${invoice.id}`,
-        );
         log("subscription_renewed", { sessionId, customerId });
         break;
       }

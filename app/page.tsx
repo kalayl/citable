@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AuditWidget from "@/components/AuditWidget";
+import Pricing from "@/components/Pricing";
 import AccountMenu from "@/components/AccountMenu";
 import HeroSketch from "@/components/HeroSketch";
 import { LogoMark } from "@/components/Logo";
@@ -549,12 +550,17 @@ User-agent: PerplexityBot
       </section>
 
       {/* ============================================================
-          7. PRICING — one line.
+          7. PRICING — four tiers. The score is free, the fix is the product.
+          ============================================================ */}
+      <Pricing />
+
+      {/* ============================================================
+          7b. FINAL CTA
           ============================================================ */}
       <section className="border-b border-gray-200">
         <div className="mx-auto max-w-3xl px-6 py-20 text-center sm:py-24">
           <p className="font-sans text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-            Free audit. $29/mo for GitHub PR fixes.
+            The score is free. The fix is the product.
           </p>
           <p className="mt-3 font-hand text-xl text-accent-600">
             early access: everything free

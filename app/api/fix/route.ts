@@ -17,7 +17,7 @@ import { fixOgCards } from "@/lib/fixes/og-cards";
 import type { AuditResult } from "@/lib/types";
 import { auth } from "@/auth";
 import { getOrCreateSessionId } from "@/lib/session-anon";
-import { getRecord } from "@/lib/credits";
+import { canCreatePR, recordPrFix } from "@/lib/credits";
 import { isStripeConfigured } from "@/lib/stripe";
 import { trackFixPR } from "@/lib/analytics";
 
@@ -97,13 +97,30 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (isStripeConfigured()) {
-    const { sessionId } = getOrCreateSessionId(req);
-    const record = await getRecord(sessionId);
-    if (record.subscription?.status !== "active") {
+  const billingEnabled = isStripeConfigured();
+  const { sessionId } = getOrCreateSessionId(req);
+  if (billingEnabled) {
+    const quota = await canCreatePR(sessionId, 1);
+    if (!quota.allowed) {
+      const upgrade =
+        quota.plan === "free"
+          ? "Upgrade to Pro ($29/mo) for up to 10 GitHub PR fixes per month."
+          : quota.plan === "agency"
+            ? "You've used all 50 PR fixes this month — contact us about Enterprise for unlimited fixes."
+            : `You've used all ${quota.limit} PR fixes this month — upgrade to Agency ($99/mo) for 50/mo.`;
       return NextResponse.json(
-        { error: "An active subscription is required for one-click fixes." },
-        { status: 403 },
+        {
+          error:
+            quota.plan === "free"
+              ? "One-click PR fixes require a Pro or Agency subscription."
+              : `Monthly PR fix limit reached (${quota.used}/${quota.limit}).`,
+          code: "payment_required",
+          plan: quota.plan,
+          used: quota.used,
+          limit: quota.limit,
+          upgrade,
+        },
+        { status: 402 },
       );
     }
   }
@@ -211,6 +228,9 @@ export async function POST(req: NextRequest) {
       base: base.branch,
     });
 
+    if (billingEnabled) {
+      await recordPrFix(sessionId, `${repo} ${category}`);
+    }
     await trackFixPR(domain, category, prUrl, session.user.email);
 
     return NextResponse.json({ prUrl, branch: branchName, path: targetPath });
